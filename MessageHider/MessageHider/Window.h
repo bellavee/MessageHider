@@ -21,6 +21,10 @@ private:
 
     HINSTANCE hInstance;
     HWND hWnd;
+    HWND hTab;
+    HWND hPageEncode;
+    HWND hPageDecode;
+
     WCHAR szTitle[MAX_LOADSTRING];
     WCHAR szWindowClass[MAX_LOADSTRING];
 
