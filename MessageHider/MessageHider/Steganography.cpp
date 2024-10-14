@@ -4,36 +4,47 @@ bool Steganography::HideMessage(std::string message)
 {
 	m_index = 0;
 	m_message = message;
+	m_message += END_CHAR;
 	ConvertMessageToBinary();
 
 	int width = 0; // get image width
 	int height = 0; // get image height
 	int imageSize = 0; // get image pixels size
 
-	// check message length, return error if too long
-	if (message.size() * 8 > imageSize) return false;
+	// check message length, return error if empty or too long
+	if (message.empty() || m_message.size() * 8 > imageSize) return false;
 
 	for (m_pixelY = 0; m_pixelY < height; m_pixelY++)
 	{
 		for (m_pixelX = 0; m_pixelX < width; m_pixelX++)
 		{
-			if (!ChangePixel()) break;
+			if (!ChangePixelColor()) break;
 		}
 
-		if (!ChangePixel()) break;
+		if (!ChangePixelColor()) break;
 	}
 
 	return true;
 }
 
-void Steganography::GetImage()
-{
-	//
-}
-
 std::string Steganography::ExtractMessage()
 {
-	return "todo";
+	m_message.clear();
+
+	int width = 0; // get image width
+	int height = 0; // get image height
+
+	for (m_pixelY = 0; m_pixelY < height; m_pixelY++)
+	{
+		for (m_pixelX = 0; m_pixelX < width; m_pixelX++)
+		{
+			if (!GetPixelBinary()) return m_message;
+		}
+
+		if (!GetPixelBinary()) return m_message;
+	}
+
+	return m_message;
 }
 
 void Steganography::ConvertMessageToBinary()
@@ -48,7 +59,7 @@ void Steganography::ConvertMessageToBinary()
 	}
 }
 
-bool Steganography::ChangePixel()
+bool Steganography::ChangePixelColor()
 {
 	int length = m_message.size() * 8;
 
@@ -63,10 +74,32 @@ bool Steganography::ChangePixel()
 	// Set pixel
 	//BYTE blue = pixelColor.GetBlue();
 	//blue = (blue & 0xFE) | bit;
-
 	//Color newColor(pixelColor.GetRed(), pixelColor.GetGreen(), blue, pixelColor.GetAlpha());
 	//m_bitmap.SetPixel(m_x, m_y, newColor);
 
 	m_index++;
 	return true;
+}
+
+bool Steganography::GetPixelBinary()
+{
+	// Get pixel
+	//Color pixelColor;
+	//m_bitmap.GetPixel(m_pixelX, m_pixelY, &pixelColor);
+	//BYTE blue = pixelColor.GetBlue();
+	//int bit = blue & 1;
+
+	//m_character |= (bit << m_bits);
+	m_bits++;
+
+	// Check if character is finished
+	if (m_bits == BIT_LENGTH)
+	{
+		// Check if message is finished
+		if (m_character == END_CHAR) return false;
+
+		m_message.push_back(m_character);
+		m_character = 0;
+		m_bits = 0;
+	}
 }
