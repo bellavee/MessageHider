@@ -20,15 +20,19 @@ private:
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     HINSTANCE hInstance;
-    HWND hWnd;
-    HWND hTab;
-    HWND hPageEncode;
-    HWND hPageDecode;
 
-    WCHAR szTitle[MAX_LOADSTRING];
-    WCHAR szWindowClass[MAX_LOADSTRING];
+    HWND m_hWnd;
+    HWND m_hTab;
+    HWND m_hPageEncode;
+    HWND m_hPageDecode;
+
+    WCHAR m_szTitle[MAX_LOADSTRING];
+    WCHAR m_szWindowClass[MAX_LOADSTRING];
 
     void InitCommonControls();
     ATOM MyRegisterClass();
     BOOL InitInstance(int nCmdShow);
+    void CreateTabControl(); 
+    void CreateTabPages();
+    void SetupTabPage(int index);
 };

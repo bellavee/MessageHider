@@ -5,10 +5,10 @@
 Window::Window(HINSTANCE hInst, int nCmdShow)
     : hInstance(hInst)
 {
-    LoadStringW(hInst, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInst, IDC_MESSAGEHIDER, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
+    LoadStringW(hInst, IDC_MESSAGEHIDER, m_szWindowClass, MAX_LOADSTRING);
 
-    if (!MyRegisterClass() || !InitInstance(nCmdShow)) hWnd = nullptr;
+    if (!MyRegisterClass() || !InitInstance(nCmdShow)) m_hWnd = nullptr;
 }
 
 Window::~Window()
@@ -17,7 +17,7 @@ Window::~Window()
 
 bool Window::Create() const 
 {
-    return hWnd != nullptr;
+    return m_hWnd != nullptr;
 }
 
 void Window::ShowMessageLoop() const 
@@ -57,7 +57,7 @@ ATOM Window::MyRegisterClass()
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = szWindowClass;
+    wcex.lpszClassName = m_szWindowClass;
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 
     return RegisterClassExW(&wcex);
@@ -65,17 +65,34 @@ ATOM Window::MyRegisterClass()
 
 BOOL Window::InitInstance(int nCmdShow) 
 {
-    hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+    m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
         nullptr, nullptr, hInstance, nullptr);
 
-    if (!hWnd) return FALSE;
+    if (!m_hWnd) return FALSE;
 
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
+    ShowWindow(m_hWnd, nCmdShow);
+    UpdateWindow(m_hWnd);
 
     return TRUE;
 }
+
+//void Window::CreateTabControl()
+//{
+//    m_hTab = CreateWindow(WC_TABCONTROL, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+//        0, 0, 400, 300, m_hWnd, nullptr, hInstance, nullptr);
+//
+//    TCITEM tie;
+//    tie.mask = TCIF_TEXT;
+//
+//    tie.pszText = L"Encode";
+//    TabCtrl_InsertItem(m_hTab, 0, &tie);
+//
+//    tie.pszText = L"Decode";
+//    TabCtrl_InsertItem(m_hTab, 1, &tie);
+//
+//    CreateTabPages();
+//}
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
