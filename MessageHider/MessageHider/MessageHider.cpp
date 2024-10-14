@@ -3,6 +3,7 @@
 
 #include "framework.h"
 #include "MessageHider.h"
+#include "Steganography.h"
 
 #define MAX_LOADSTRING 100
 
