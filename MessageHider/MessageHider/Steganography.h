@@ -5,24 +5,37 @@
 #include <iostream>
 #include <bitset>
 
+#include <windows.h>
+#include <gdiplus.h>
+#pragma comment(lib, "gdiplus.lib")
+
+using namespace Gdiplus;
+
 #define BIT_LENGTH 8
 #define END_CHAR '\0'
 
 class Steganography
 {
 public:
-	bool HideMessage(std::string message); // bitmap en argument
-	std::string ExtractMessage();
+	~Steganography();
+	virtual bool Encode(const WCHAR* image, std::string message);
+	virtual std::string Decode();
 
-	//void GetImage() { return m_bitmap; }
+	Bitmap* GetImage() { return m_image; }
 
-private:
+protected:
 	void ConvertMessageToBinary();
-	bool ChangePixelColor();
-	bool GetPixelBinary();
+	void SetDatas(const WCHAR* image, std::string message);
+	virtual bool ChangePixelColor() = 0;
+	virtual bool GetPixelBinary() = 0;
 
 	std::string m_message;
-	// Image m_bitmap
+	Bitmap* m_image;
+
+	// Image
+	int m_width;
+	int m_height;
+	int m_size;
 
 	// Hide message
 	std::vector<int> m_binaryMessage;

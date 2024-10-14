@@ -1,38 +1,29 @@
 #include "Steganography.h"
 
-bool Steganography::HideMessage(std::string message)
+Steganography::~Steganography()
 {
-	m_index = 0;
-	m_message = message;
-	m_message += END_CHAR;
-	ConvertMessageToBinary();
+	delete m_image;
+}
 
-	int width = 0; // get image width
-	int height = 0; // get image height
-	int imageSize = 0; // get image pixels size
-
-	// check message length, return error if empty or too long
-	if (message.empty() || m_message.size() * 8 > imageSize) return false;
-
-	for (m_pixelY = 0; m_pixelY < height; m_pixelY++)
+bool Steganography::Encode(const WCHAR* image, std::string message)
+{
+	for (m_pixelY = 0; m_pixelY < m_height; m_pixelY++)
 	{
-		for (m_pixelX = 0; m_pixelX < width; m_pixelX++)
+		for (m_pixelX = 0; m_pixelX < m_width; m_pixelX++)
 		{
-			if (!ChangePixelColor()) break;
+			if (!ChangePixelColor()) return true;
 		}
-
-		if (!ChangePixelColor()) break;
 	}
 
 	return true;
 }
 
-std::string Steganography::ExtractMessage()
+std::string Steganography::Decode()
 {
 	m_message.clear();
 
-	int width = 0; // get image width
-	int height = 0; // get image height
+	int width = m_image->GetWidth();
+	int height = m_image->GetHeight();
 
 	for (m_pixelY = 0; m_pixelY < height; m_pixelY++)
 	{
@@ -40,8 +31,6 @@ std::string Steganography::ExtractMessage()
 		{
 			if (!GetPixelBinary()) return m_message;
 		}
-
-		if (!GetPixelBinary()) return m_message;
 	}
 
 	return m_message;
@@ -59,47 +48,16 @@ void Steganography::ConvertMessageToBinary()
 	}
 }
 
-bool Steganography::ChangePixelColor()
+void Steganography::SetDatas(const WCHAR* image, std::string message)
 {
-	int length = m_message.size() * 8;
+	m_image = new Bitmap(image);
 
-	if (m_index >= length) return false;
+	m_index = 0;
+	m_message = message;
+	m_message += END_CHAR;
+	ConvertMessageToBinary();
 
-	// Get pixel
-	//Color pixelColor;
-	//m_bitmap.GetPixel(m_x, m_y, &pixelColor);
-
-	int bit = m_binaryMessage[m_index];
-
-	// Set pixel
-	//BYTE blue = pixelColor.GetBlue();
-	//blue = (blue & 0xFE) | bit;
-	//Color newColor(pixelColor.GetRed(), pixelColor.GetGreen(), blue, pixelColor.GetAlpha());
-	//m_bitmap.SetPixel(m_x, m_y, newColor);
-
-	m_index++;
-	return true;
-}
-
-bool Steganography::GetPixelBinary()
-{
-	// Get pixel
-	//Color pixelColor;
-	//m_bitmap.GetPixel(m_pixelX, m_pixelY, &pixelColor);
-	//BYTE blue = pixelColor.GetBlue();
-	//int bit = blue & 1;
-
-	//m_character |= (bit << m_bits);
-	m_bits++;
-
-	// Check if character is finished
-	if (m_bits == BIT_LENGTH)
-	{
-		// Check if message is finished
-		if (m_character == END_CHAR) return false;
-
-		m_message.push_back(m_character);
-		m_character = 0;
-		m_bits = 0;
-	}
+	m_width = m_image->GetWidth();
+	m_height = m_image->GetHeight();
+	m_size = m_width * m_height;
 }

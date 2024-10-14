@@ -129,6 +129,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="LSB.h" />
+    <ClInclude Include="F5.h" />
     <ClInclude Include="MessageHider.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Steganography.h" />
@@ -136,6 +138,8 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LSB.cpp" />
+    <ClCompile Include="F5.cpp" />
     <ClCompile Include="MessageHider.cpp" />
     <ClCompile Include="Steganography.cpp" />
     <ClCompile Include="Window.cpp" />
