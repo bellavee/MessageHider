@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="MessageHider.h" />
+    <ClInclude Include="PngImage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Window.h" />
@@ -137,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="MessageHider.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="PngImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MessageHider.rc" />
