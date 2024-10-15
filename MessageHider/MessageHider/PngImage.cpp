@@ -164,7 +164,7 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     }
 
     // Unfilter the data and convert to BGRA
-    std::vector<uint8_t> bgra_data(m_width * m_height * 4);
+    m_pixelData.resize(m_width * m_height * 4);
     for (int y = 0; y < m_height; ++y) {
         uint8_t filter = decompressed_data[y * stride];
         for (int x = 0; x < m_width; ++x) {
@@ -194,23 +194,23 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
                 switch (filter) {
                 case 0: break; // None
                 case 1: // Sub
-                    if (x > 0) byte += bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)];
+                    if (x > 0) byte += m_pixelData[y * m_width * 4 + (x - 1) * 4 + (2 - c)];
                     break;
                 case 2: // Up
-                    if (y > 0) byte += bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)];
+                    if (y > 0) byte += m_pixelData[(y - 1) * m_width * 4 + x * 4 + (2 - c)];
                     break;
                 case 3: // Average
                 {
-                    uint16_t a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
-                    uint16_t b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
+                    uint16_t a = (x > 0) ? m_pixelData[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
+                    uint16_t b = (y > 0) ? m_pixelData[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
                     byte += (a + b) / 2;
                 }
                 break;
                 case 4: // Paeth
                 {
-                    int a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
-                    int b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
-                    int c_ = (x > 0 && y > 0) ? bgra_data[(y - 1) * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
+                    int a = (x > 0) ? m_pixelData[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
+                    int b = (y > 0) ? m_pixelData[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
+                    int c_ = (x > 0 && y > 0) ? m_pixelData[(y - 1) * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
                     int p = a + b - c_;
                     int pa = std::abs(p - a);
                     int pb = std::abs(p - b);
@@ -224,10 +224,10 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
             }
 
             // Store in BGRA format
-            bgra_data[y * m_width * 4 + x * 4 + 0] = b;
-            bgra_data[y * m_width * 4 + x * 4 + 1] = g;
-            bgra_data[y * m_width * 4 + x * 4 + 2] = r;
-            bgra_data[y * m_width * 4 + x * 4 + 3] = a;
+            m_pixelData[y * m_width * 4 + x * 4 + 0] = b;
+            m_pixelData[y * m_width * 4 + x * 4 + 1] = g;
+            m_pixelData[y * m_width * 4 + x * 4 + 2] = r;
+            m_pixelData[y * m_width * 4 + x * 4 + 3] = a;
         }
     }
 
@@ -253,8 +253,7 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
         throw std::runtime_error("Failed to create bitmap");
     }
 
-    // Copy pixel data to bitmap
-    memcpy(bits, bgra_data.data(), bgra_data.size());
+    memcpy(bits, m_pixelData.data(), m_pixelData.size());
 
     ReleaseDC(NULL, hdc);
 }

@@ -12,6 +12,7 @@ public:
 
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
+	const std::vector<uint8_t>& GetPixelData() const { return m_pixelData; }
 
 private:
 	struct PNG_IHDR {
@@ -31,5 +32,6 @@ private:
 	HBITMAP m_hBitmap;
 	int m_width;
 	int m_height;
+	std::vector<uint8_t> m_pixelData;
 };
 
