@@ -2,7 +2,9 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
-#include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
+
+#include "PngImage.h"
+#include "resource.h" // Inclure si on utilises des ressources (icÃ´nes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
@@ -38,6 +40,12 @@ private:
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
+
+    std::unique_ptr<PngImage> m_pngImage;
+    bool m_imageLoaded;
+
+    void LoadPngImage();
+
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void Draw(HDC hdc);
 
