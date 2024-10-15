@@ -35,7 +35,7 @@
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Fichiers d%27en-tête</Filter>
-    </ClCompile>
+    </ClInclude>
     <ClInclude Include="LSB.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
