@@ -17,3 +17,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include <fstream>
+#include <stdexcept>
+
+#include "zlib/zlib.h"
+#pragma comment(lib, "libz-static.lib")

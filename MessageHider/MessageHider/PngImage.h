@@ -26,7 +26,7 @@ private:
 
 	static uint32_t ReadUint32(const uint8_t* data);
 	std::vector<uint8_t> ParsePng(const std::string& filename, PNG_IHDR& ihdr);
-	void CreateDIBSection(const std::vector<uint8_t>& idat, const PNG_IHDR& ihdr);
+	void CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const PNG_IHDR& ihdr);
 
 	HBITMAP m_hBitmap;
 	int m_width;
