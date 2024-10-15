@@ -129,13 +129,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="LSB.h" />
+    <ClInclude Include="MatrixEmbedding.h" />
     <ClInclude Include="MessageHider.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Steganography.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LSB.cpp" />
+    <ClCompile Include="MatrixEmbedding.cpp" />
     <ClCompile Include="MessageHider.cpp" />
+    <ClCompile Include="Steganography.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
