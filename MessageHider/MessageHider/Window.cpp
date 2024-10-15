@@ -3,12 +3,15 @@
 
 
 Window::Window(HINSTANCE hInst, int nCmdShow)
-    : hInstance(hInst)
+    : hInstance(hInst), m_imageLoaded(false)
 {
     LoadStringW(hInst, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInst, IDC_MESSAGEHIDER, szWindowClass, MAX_LOADSTRING);
 
-    if (!MyRegisterClass() || !InitInstance(nCmdShow)) hWnd = nullptr;
+    if (!MyRegisterClass() || !InitInstance(nCmdShow)) {
+        hWnd = nullptr;
+        MessageBoxA(NULL, "Failed to create window", "Error", MB_ICONERROR | MB_OK);
+    }
 }
 
 Window::~Window()
@@ -67,7 +70,7 @@ BOOL Window::InitInstance(int nCmdShow)
 {
     hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
-        nullptr, nullptr, hInstance, nullptr);
+        nullptr, nullptr, hInstance, this);
 
     if (!hWnd) return FALSE;
 
@@ -79,8 +82,26 @@ BOOL Window::InitInstance(int nCmdShow)
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
+    static Window* pThis = nullptr;
+
+    if (message == WM_NCCREATE)
+    {
+        pThis = static_cast<Window*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+    else
+    {
+        pThis = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
     switch (message) 
     {
+    case WM_CREATE:
+        if (pThis)
+        {
+            pThis->LoadPngImage(); 
+        }
+        break;
     case WM_COMMAND: 
     {
         int wmId = LOWORD(wParam);
@@ -100,6 +121,14 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+        if (pThis && pThis->m_imageLoaded && pThis->m_pngImage)
+        {
+            pThis->m_pngImage->Render(hdc, 0, 0);
+        }
+        else if (pThis && !pThis->m_imageLoaded)
+        {
+            TextOutA(hdc, 10, 10, "Loading image...", 15);
+        }
         EndPaint(hWnd, &ps);
     } break;
     case WM_DESTROY:
@@ -126,4 +155,17 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void Window::LoadPngImage()
+{
+    m_pngImage = std::make_unique<PngImage>();
+    try {
+        m_pngImage->LoadFromFile("sample.png");
+        m_imageLoaded = true;
+        InvalidateRect(hWnd, NULL, TRUE);  // Force a redraw
+    }
+    catch (const std::exception& e) {
+        MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+    }
 }

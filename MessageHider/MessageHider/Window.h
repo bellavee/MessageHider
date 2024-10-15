@@ -2,6 +2,8 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
+
+#include "PngImage.h"
 #include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
@@ -31,4 +33,9 @@ private:
     void InitCommonControls();
     ATOM MyRegisterClass();
     BOOL InitInstance(int nCmdShow);
+
+    std::unique_ptr<PngImage> m_pngImage;
+    bool m_imageLoaded;
+
+    void LoadPngImage();
 };
