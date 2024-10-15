@@ -2,11 +2,13 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
+//#include <wingdi.h>
 #include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
 constexpr int WINDOW_HEIGHT = 900;
+constexpr WCHAR WINDOW_TITLE[] = L"MESSAGE HIDER";
 constexpr COLORREF TEXT_COLOR = RGB(255, 255, 255);
 constexpr COLORREF BACKGROUND_COLOR = RGB(30, 30, 30);
 constexpr COLORREF DARK_GREY = RGB(44, 44, 44);  
@@ -26,20 +28,20 @@ public:
 
 private:
 
-    HINSTANCE hInstance;
-
+    HINSTANCE m_hInstance;
     HWND m_hWnd;
+    HFONT m_hTitleFont;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];
 
-    //void InitCommonControls();
-    void CreateButtons();
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
-    void Draw(HDC hdc);
+    void DrawTitle(HDC hdc);
+    void CreateButtons();
+
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

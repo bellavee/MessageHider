@@ -2,9 +2,12 @@
 #include "Button.h"
 
 Window::Window(HINSTANCE hInst, int nCmdShow)
-    : hInstance(hInst)
+    : m_hInstance(hInst), m_hTitleFont(nullptr)
 {
-    LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
+
+    wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
+
+    //LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
     LoadStringW(hInst, IDC_MESSAGEHIDER, m_szWindowClass, MAX_LOADSTRING);
 
     if (!MyRegisterClass() || !InitInstance(nCmdShow)) m_hWnd = nullptr;
@@ -12,6 +15,7 @@ Window::Window(HINSTANCE hInst, int nCmdShow)
 
 Window::~Window()
 {
+    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Libérer la police
 }
 
 bool Window::Display()  
@@ -27,7 +31,7 @@ bool Window::Display()
 void Window::ShowMessageLoop() const 
 {
     MSG msg;
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MESSAGEHIDER));
+    HACCEL hAccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_MESSAGEHIDER));
 
     while (GetMessage(&msg, nullptr, 0, 0)) 
     {
@@ -44,27 +48,27 @@ void Window::CreateButtons()
     int anchorSpacing = 8;
 
     int themeWidth = 300;
-    Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, hInstance, m_hWnd);
+    Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, m_hInstance, m_hWnd);
     themeButton.Create();
 
     int downloadImageButtonWidth = 300;
-    Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, hInstance, m_hWnd);
+    Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, m_hInstance, m_hWnd);
     downloadImageButton.Create();
 
     int hideMessageButtonWidth = 480;
-    Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, hInstance, m_hWnd);
+    Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, m_hInstance, m_hWnd);
     hideMessageButton.Create();
 
     int downloadNewImageWidth = 480;
-    Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, hInstance, m_hWnd);
+    Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, m_hInstance, m_hWnd);
     downloadNewImageButton.Create();
 
     int bottomButtonWidth = WINDOW_WIDTH / 2;
     int bottomButtonHeight = 40;
     int bottomButtonPosY = WINDOW_HEIGHT - (bottomButtonHeight * 2);
-    Button encodeButton(L"ENCODE", LIGHT_GREY, 0, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)5, hInstance, m_hWnd);
+    Button encodeButton(L"ENCODE", LIGHT_GREY, 0, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)5, m_hInstance, m_hWnd);
     encodeButton.Create();
-    Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, hInstance, m_hWnd);
+    Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, m_hInstance, m_hWnd);
     decodeButton.Create();
 }
 
@@ -75,8 +79,8 @@ ATOM Window::MyRegisterClass() const
     wcex.lpfnWndProc = WndProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+    wcex.hInstance = m_hInstance;
+    wcex.hIcon = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
@@ -106,7 +110,7 @@ BOOL Window::InitInstance(int nCmdShow)
     m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle,
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CenteredWindow.left, CenteredWindow.top, WINDOW_WIDTH, WINDOW_HEIGHT,
-        nullptr, nullptr, hInstance, nullptr);
+        nullptr, nullptr, m_hInstance, nullptr);
 
     if (!m_hWnd) return FALSE;
 
@@ -122,6 +126,36 @@ void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
     HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);     // Remplace par la couleur désirée
     FillRect(hdc, &ps.rcPaint, hBrush);                     // Remplir l'arrière-plan
     DeleteObject(hBrush);                                   // Libérer la brosse
+}
+
+void Window::DrawTitle(HDC hdc)
+{
+
+    //if (!m_hTitleFont) // Créer la police seulement si elle n'est pas déjà créée
+    //{
+    //    m_hTitleFont = CreateFont(
+    //        50, // Hauteur de la police
+    //        0,  // Largeur de la police
+    //        0,  // Angle de rotation
+    //        0,  // Angle d'orientation
+    //        FW_BOLD, // Épaisseur de la police
+    //        FALSE, // Italique
+    //        FALSE, // Souligné
+    //        FALSE, // Barré
+    //        DEFAULT_CHARSET,
+    //        OUT_DEFAULT_PRECIS,
+    //        CLIP_DEFAULT_PRECIS,
+    //        DEFAULT_QUALITY,
+    //        DEFAULT_FQUALITY,
+    //        L"Arial"); // Choisissez votre police ici
+    //}
+
+    SetTextColor(hdc, TEXT_COLOR);
+    SetBkMode(hdc, TRANSPARENT); // Pour un fond transparent
+
+    //const WCHAR* title = WINDOW_TITLE; // Utilisez votre titre ici
+    //TextOutW(hdc, (WINDOW_HEIGHT / 20), (WINDOW_WIDTH / 15), title, wcslen(title));
+    TextOut(hdc, (WINDOW_WIDTH / 20), (WINDOW_HEIGHT / 15), m_szTitle, wcslen(m_szTitle));
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
@@ -147,25 +181,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             break;
         }
         break;
-    //case WM_CTLCOLORBTN:
-    //{
-    //    HDC hdcButton = (HDC)wParam;
-    //    HWND hButton = (HWND)lParam;
-
-    //    // Changez la couleur de fond du bouton
-    //    SetBkColor(hdcButton, RED); // Couleur de fond
-    //    SetTextColor(hdcButton, TEXT_COLOR); // Couleur du texte
-
-    //    return (LONG)(HBRUSH)GetStockObject(NULL_BRUSH); // Renvoyer un pinceau nul pour empêcher le dessin par défaut
-
-    //}
-    //break;
     case WM_PAINT: 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
         BackgroundColor(hdc, ps);
+        //DrawTitle(hdc);
 
         EndPaint(hWnd, &ps);
     } break;
