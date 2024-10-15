@@ -63,10 +63,27 @@ ATOM Window::MyRegisterClass()
     return RegisterClassExW(&wcex);
 }
 
+RECT Window::GetCenteredWindow() const
+{
+    RECT rect;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+    int xPos = (rect.right - WINDOW_WIDTH) / 2;
+    int yPos = (rect.bottom - WINDOW_HEIGHT) / 2;
+
+    RECT centeredWindow = { xPos, yPos, xPos + WINDOW_WIDTH, yPos + WINDOW_HEIGHT };
+    return centeredWindow;
+
+    return RECT();
+}
+
 BOOL Window::InitInstance(int nCmdShow) 
 {
-    m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,
+    RECT CenteredWindow = GetCenteredWindow();
+
+    // Créer la fenêtre avec la taille et la position centrées
+    m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle,
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,  // Styles pour empêcher le redimensionnement
+        CW_USEDEFAULT, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         nullptr, nullptr, hInstance, nullptr);
 
     if (!m_hWnd) return FALSE;
@@ -77,22 +94,6 @@ BOOL Window::InitInstance(int nCmdShow)
     return TRUE;
 }
 
-//void Window::CreateTabControl()
-//{
-//    m_hTab = CreateWindow(WC_TABCONTROL, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-//        0, 0, 400, 300, m_hWnd, nullptr, hInstance, nullptr);
-//
-//    TCITEM tie;
-//    tie.mask = TCIF_TEXT;
-//
-//    tie.pszText = L"Encode";
-//    TabCtrl_InsertItem(m_hTab, 0, &tie);
-//
-//    tie.pszText = L"Decode";
-//    TabCtrl_InsertItem(m_hTab, 1, &tie);
-//
-//    CreateTabPages();
-//}
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {

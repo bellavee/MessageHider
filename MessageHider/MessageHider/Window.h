@@ -5,6 +5,8 @@
 #include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
+constexpr int WINDOW_WIDTH = 540;
+constexpr int WINDOW_HEIGHT = 900;
 
 class Window 
 {
@@ -31,8 +33,7 @@ private:
 
     void InitCommonControls();
     ATOM MyRegisterClass();
+    RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
-    void CreateTabControl(); 
-    void CreateTabPages();
-    void SetupTabPage(int index);
+
 };
