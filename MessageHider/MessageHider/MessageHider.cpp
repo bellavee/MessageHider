@@ -1,6 +1,7 @@
 #include "MessageHider.h"
 #include "Window.h"
 #include "framework.h"
+#include "LSB.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -9,6 +10,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+    // Temp
+    LSB lsb;
+    if (!lsb.Encode("Long message de test")) return 0;
+    std::string result = lsb.Decode();
+    //
 
     Window window(hInstance, nCmdShow);
 
