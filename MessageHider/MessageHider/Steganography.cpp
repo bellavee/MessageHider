@@ -2,10 +2,9 @@
 
 bool Steganography::Encode(std::string message)
 {
-	LoadImage();
+	LoadImage(); // temp
 
 	Reset();
-	m_messageIndex = 0;
 	m_message = message;
 	ConvertMessageToBinary();
 
