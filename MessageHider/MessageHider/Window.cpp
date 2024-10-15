@@ -55,6 +55,7 @@ ATOM Window::MyRegisterClass()
     wcex.hInstance = hInstance;
     wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    //wcex.hbrBackground = CreateSolidBrush(BACKGROUND_COLOR); // Utiliser la couleur définie
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
     wcex.lpszClassName = m_szWindowClass;
@@ -94,6 +95,14 @@ BOOL Window::InitInstance(int nCmdShow)
     return TRUE;
 }
 
+void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
+{
+    // Définir la couleur d'arrière-plan
+    HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);     // Remplace par la couleur désirée
+    FillRect(hdc, &ps.rcPaint, hBrush);                     // Remplir l'arrière-plan
+    DeleteObject(hBrush);                                   // Libérer la brosse
+}
+
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
@@ -118,8 +127,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+
+        BackgroundColor(hdc, ps);
+
         EndPaint(hWnd, &ps);
     } break;
+    case WM_ERASEBKGND:
+        return 1;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
