@@ -134,10 +134,12 @@ std::vector<uint8_t> PngImage::ParsePng(const std::string& filename, PNG_IHDR& i
 void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const PNG_IHDR& ihdr) {
     int bytes_per_pixel = 0;
     switch (ihdr.color_type) {
+    case 0: bytes_per_pixel = 1; break; // Grayscale
     case 2: bytes_per_pixel = 3; break; // RGB
+    case 3: bytes_per_pixel = 1; break; // Palette
+    case 4: bytes_per_pixel = 2; break; // Grayscale with alpha
     case 6: bytes_per_pixel = 4; break; // RGBA
     default:
-        MessageBoxA(NULL, "Unsupported color type", "Error", MB_ICONERROR | MB_OK);
         throw std::runtime_error("Unsupported color type");
     }
 
@@ -146,7 +148,6 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
 
     z_stream zstream = {};
     if (inflateInit(&zstream) != Z_OK) {
-        MessageBoxA(NULL, "Failed to initialize zlib", "Error", MB_ICONERROR | MB_OK);
         throw std::runtime_error("Failed to initialize zlib");
     }
 
@@ -159,7 +160,6 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     inflateEnd(&zstream);
 
     if (result != Z_STREAM_END) {
-        MessageBoxA(NULL, "Failed to decompress PNG data", "Error", MB_ICONERROR | MB_OK);
         throw std::runtime_error("Failed to decompress PNG data");
     }
 
@@ -168,56 +168,66 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     for (int y = 0; y < m_height; ++y) {
         uint8_t filter = decompressed_data[y * stride];
         for (int x = 0; x < m_width; ++x) {
-            for (int c = 0; c < bytes_per_pixel; ++c) {
-                uint8_t filtered_byte = decompressed_data[y * stride + 1 + x * bytes_per_pixel + c];
-                uint8_t unfiltered_byte = filtered_byte;
+            uint8_t r = 0, g = 0, b = 0, a = 255;
 
+            switch (ihdr.color_type) {
+            case 0: // Grayscale
+            case 4: // Grayscale with alpha
+                r = g = b = decompressed_data[y * stride + 1 + x * bytes_per_pixel];
+                if (ihdr.color_type == 4) a = decompressed_data[y * stride + 1 + x * bytes_per_pixel + 1];
+                break;
+            case 2: // RGB
+            case 6: // RGBA
+                r = decompressed_data[y * stride + 1 + x * bytes_per_pixel];
+                g = decompressed_data[y * stride + 1 + x * bytes_per_pixel + 1];
+                b = decompressed_data[y * stride + 1 + x * bytes_per_pixel + 2];
+                if (ihdr.color_type == 6) a = decompressed_data[y * stride + 1 + x * bytes_per_pixel + 3];
+                break;
+            case 3: // Palette
+                // Implement palette handling here
+                break;
+            }
+
+            // Apply unfiltering
+            for (int c = 0; c < bytes_per_pixel; ++c) {
+                uint8_t& byte = (c == 0) ? r : (c == 1) ? g : (c == 2) ? b : a;
                 switch (filter) {
-                case 0: // None
-                    break;
+                case 0: break; // None
                 case 1: // Sub
-                    if (x > 0) unfiltered_byte += bgra_data[y * m_width * 4 + (x - 1) * 4 + c];
+                    if (x > 0) byte += bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)];
                     break;
                 case 2: // Up
-                    if (y > 0) unfiltered_byte += bgra_data[(y - 1) * m_width * 4 + x * 4 + c];
+                    if (y > 0) byte += bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)];
                     break;
                 case 3: // Average
                 {
-                    uint16_t a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + c] : 0;
-                    uint16_t b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + c] : 0;
-                    unfiltered_byte += (a + b) / 2;
+                    uint16_t a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
+                    uint16_t b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
+                    byte += (a + b) / 2;
                 }
                 break;
                 case 4: // Paeth
                 {
-                    int a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + c] : 0;
-                    int b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + c] : 0;
-                    int c_ = (x > 0 && y > 0) ? bgra_data[(y - 1) * m_width * 4 + (x - 1) * 4 + c] : 0;
+                    int a = (x > 0) ? bgra_data[y * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
+                    int b = (y > 0) ? bgra_data[(y - 1) * m_width * 4 + x * 4 + (2 - c)] : 0;
+                    int c_ = (x > 0 && y > 0) ? bgra_data[(y - 1) * m_width * 4 + (x - 1) * 4 + (2 - c)] : 0;
                     int p = a + b - c_;
                     int pa = std::abs(p - a);
                     int pb = std::abs(p - b);
                     int pc = std::abs(p - c_);
-                    if (pa <= pb && pa <= pc) unfiltered_byte += a;
-                    else if (pb <= pc) unfiltered_byte += b;
-                    else unfiltered_byte += c_;
+                    if (pa <= pb && pa <= pc) byte += a;
+                    else if (pb <= pc) byte += b;
+                    else byte += c_;
                 }
                 break;
                 }
+            }
 
-                // Convert RGBA to BGRA
-                int bgra_index;
-                if (c < 3) {
-                    bgra_index = y * m_width * 4 + x * 4 + (2 - c); // Swap R and B
-                }
-                else {
-                    bgra_index = y * m_width * 4 + x * 4 + c; // Alpha stays in the same position
-                }
-                bgra_data[bgra_index] = unfiltered_byte;
-            }
-            if (bytes_per_pixel == 3) {
-                // If RGB, set alpha to 255
-                bgra_data[y * m_width * 4 + x * 4 + 3] = 255;
-            }
+            // Store in BGRA format
+            bgra_data[y * m_width * 4 + x * 4 + 0] = b;
+            bgra_data[y * m_width * 4 + x * 4 + 1] = g;
+            bgra_data[y * m_width * 4 + x * 4 + 2] = r;
+            bgra_data[y * m_width * 4 + x * 4 + 3] = a;
         }
     }
 
@@ -232,10 +242,6 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
 
     HDC hdc = GetDC(NULL);
     if (hdc == NULL) {
-        DWORD error = GetLastError();
-        std::stringstream ss;
-        ss << "GetDC failed. Error code: " << error;
-        MessageBoxA(NULL, ss.str().c_str(), "Error", MB_ICONERROR | MB_OK);
         throw std::runtime_error("Failed to get device context");
     }
 
@@ -243,10 +249,6 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     m_hBitmap = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &bits, NULL, 0);
 
     if (!m_hBitmap) {
-        DWORD error = GetLastError();
-        std::stringstream ss;
-        ss << "CreateDIBSection failed. Error code: " << error;
-        MessageBoxA(NULL, ss.str().c_str(), "Error", MB_ICONERROR | MB_OK);
         ReleaseDC(NULL, hdc);
         throw std::runtime_error("Failed to create bitmap");
     }
@@ -255,8 +257,4 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     memcpy(bits, bgra_data.data(), bgra_data.size());
 
     ReleaseDC(NULL, hdc);
-
-    std::stringstream ss;
-    ss << "Bitmap created successfully. Width: " << m_width << ", Height: " << m_height;
-    MessageBoxA(NULL, ss.str().c_str(), "Success", MB_ICONINFORMATION | MB_OK);
 }
