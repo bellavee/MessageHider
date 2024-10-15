@@ -1,63 +1,67 @@
 #include "Steganography.h"
 
-Steganography::~Steganography()
+bool Steganography::Encode(std::string message)
 {
-	delete m_image;
+	LoadImage();
+
+	Reset();
+	m_messageIndex = 0;
+	m_message = message;
+	ConvertMessageToBinary();
+
+	if (!HandleErrors()) return false;
+	return true;
 }
 
-bool Steganography::Encode(const WCHAR* image, std::string message)
+void Steganography::Reset()
 {
-	for (m_pixelY = 0; m_pixelY < m_height; m_pixelY++)
+	m_messageIndex = 0;
+	m_message.clear();
+	m_binaryMessage.clear();
+}
+
+void Steganography::ConvertMessageToBinary()
+{
+	for (char c : m_message) {
+		int ascii = static_cast<int>(c); // conversion en base 10 (ascii)
+		std::bitset<BIT_LENGTH> binary(ascii); // conversion en binaire (8bits)
+		m_binaryMessage += binary.to_string();
+	}
+
+	// Ajout d'un character nul pour le décodage
+	std::bitset<BIT_LENGTH> nullChar(0);
+	m_binaryMessage += nullChar.to_string();
+}
+
+bool Steganography::EncodeIsOver(size_t i)
+{
+	return i < m_imageBytes.size() && m_messageIndex < m_binaryMessage.size();
+}
+
+bool Steganography::HandleErrors()
+{
+	if (m_message.empty())
 	{
-		for (m_pixelX = 0; m_pixelX < m_width; m_pixelX++)
-		{
-			if (!ChangePixelColor()) return true;
-		}
+		std::cerr << "Error: No message provided." << std::endl;
+		return false;
+	}
+	else if (m_binaryMessage.size() > m_imageBytes.size())
+	{
+		std::cerr << "Error: Message too long for the image size." << std::endl;
+		return false;
 	}
 
 	return true;
 }
 
-std::string Steganography::Decode()
+void Steganography::LoadImage()
 {
-	m_message.clear();
-
-	int width = m_image->GetWidth();
-	int height = m_image->GetHeight();
-
-	for (m_pixelY = 0; m_pixelY < height; m_pixelY++)
-	{
-		for (m_pixelX = 0; m_pixelX < width; m_pixelX++)
-		{
-			if (!GetPixelBinary()) return m_message;
-		}
+	std::ifstream imageFile("./eevee.png", std::ios::binary);
+	if (!imageFile) {
+		std::cerr << "Impossible d'ouvrir l'image" << std::endl;
+		return;
 	}
 
-	return m_message;
-}
-
-void Steganography::ConvertMessageToBinary()
-{
-	m_binaryMessage.clear();
-
-	for (char c : m_message) {
-		int ascii = static_cast<int>(c); // convert to base 10 (ascii)
-		std::bitset<8> binary(ascii); // convert to binary (8bits)
-
-		for (int i = 7; i >= 0; --i) m_binaryMessage.push_back(binary[i]);
-	}
-}
-
-void Steganography::SetDatas(const WCHAR* image, std::string message)
-{
-	m_image = new Bitmap(image);
-
-	m_index = 0;
-	m_message = message;
-	m_message += END_CHAR;
-	ConvertMessageToBinary();
-
-	m_width = m_image->GetWidth();
-	m_height = m_image->GetHeight();
-	m_size = m_width * m_height;
+	m_imageBytes = std::vector<uint8_t>((std::istreambuf_iterator<char>(imageFile)), std::istreambuf_iterator<char>());
+	imageFile.close();
 }

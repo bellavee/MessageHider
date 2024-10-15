@@ -1,62 +1,46 @@
 #include "LSB.h"
 
-bool LSB::Encode(const WCHAR* image, std::string message)
+bool LSB::Encode(std::string message)
 {
-	SetDatas(image, message);
+	if (!Steganography::Encode(message)) return false;
 
-	// check message length, return error if empty or too long
-	if (message.empty() || m_binaryMessage.size() > m_size) return false;
-
-	return Steganography::Encode(image, message);
-}
-
-bool LSB::ChangePixelColor()
-{
-	// Return false when all characters are hidden
-
-	int length = m_binaryMessage.size();
-
-	if (m_index >= length) return false;
-
-	// Get pixel
-	Color pixelColor;
-	m_image->GetPixel(m_pixelX, m_pixelY, &pixelColor);
-
-	int bit = m_binaryMessage[m_index];
-
-	// Set pixel
-	BYTE blue = pixelColor.GetB();
-	blue = (blue & 0xFE) | bit;
-	Color newColor(pixelColor.GetA(), pixelColor.GetR(), pixelColor.GetG(), blue);
-	m_image->SetPixel(m_pixelX, m_pixelY, newColor);
-
-	m_index++;
-	return true;
-}
-
-bool LSB::GetPixelBinary()
-{
-	// Return false when all characters are extracted
-
-	// Get pixel
-	Color pixelColor;
-	m_image->GetPixel(m_pixelX, m_pixelY, &pixelColor);
-	BYTE blue = pixelColor.GetB();
-	int bit = blue & 1;
-
-	m_character |= (bit << m_bits);
-	m_bits++;
-
-	// Check if character is finished
-	if (m_bits == BIT_LENGTH)
+	for (size_t i = 0; EncodeIsOver(i); i++)
 	{
-		// Check if message is finished
-		if (m_character == END_CHAR) return false;
+		uint8_t byte = m_imageBytes[i];
+		bool bit = m_binaryMessage[m_messageIndex] == '1';
 
-		m_message.push_back(m_character);
-		m_character = 0;
-		m_bits = 0;
+		// Masquage (AND) puis insertion du bit (OR)
+		m_imageBytes[i] = (byte & 0xFE) | bit;
+		m_messageIndex++;
 	}
 
+	Reset();
+
 	return true;
+}
+
+std::string LSB::Decode()
+{
+	m_message.clear();
+	uint8_t character = 0;
+
+	for (size_t i = 0; i < m_imageBytes.size(); i++)
+	{
+		// On récupère le bit
+		uint8_t byte = m_imageBytes[i];
+
+		character <<= 1;
+		character |= (byte & 0x01);
+
+		// Tous les 8 bits récupérés, on reconstitue le character
+		// Si on trouve le character nul, on s'arrête
+		if ((i + 1) % 8 == 0)
+		{
+			if (character == 0) break;
+			m_message += static_cast<char>(character);
+			character = 0;
+		}
+	}
+
+	return m_message;
 }
