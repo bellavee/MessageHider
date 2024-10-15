@@ -103,10 +103,9 @@ BOOL Window::InitInstance(int nCmdShow)
 {
     RECT CenteredWindow = GetCenteredWindow();
 
-    // Créer la fenêtre avec la taille et la position centrées
     m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle,
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,  // Styles pour empêcher le redimensionnement
-        CW_USEDEFAULT, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CenteredWindow.left, CenteredWindow.top, WINDOW_WIDTH, WINDOW_HEIGHT,
         nullptr, nullptr, hInstance, nullptr);
 
     if (!m_hWnd) return FALSE;
@@ -124,23 +123,6 @@ void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
     FillRect(hdc, &ps.rcPaint, hBrush);                     // Remplir l'arrière-plan
     DeleteObject(hBrush);                                   // Libérer la brosse
 }
-
-//void Window::Draw(HDC hdc)
-//{
-//    // Créer un pinceau pour la couleur de fond
-//    HBRUSH hBrush = CreateSolidBrush(m_color); // Utiliser m_color pour définir la couleur
-//    RECT rect = { m_x, m_y, m_x + m_width, m_y + m_height };
-//
-//    FillRect(hdc, &rect, hBrush); // Remplir le rectangle avec la couleur
-//
-//    // Dessiner le texte
-//    SetTextColor(hdc, TEXT_COLOR); // Couleur du texte (blanc ici)
-//    SetBkMode(hdc, TRANSPARENT); // Mode de fond transparent
-//    DrawText(hdc, m_text, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-//
-//    DeleteObject(hBrush); // Libérer le pinceau
-//}
-
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
@@ -165,13 +147,25 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             break;
         }
         break;
+    //case WM_CTLCOLORBTN:
+    //{
+    //    HDC hdcButton = (HDC)wParam;
+    //    HWND hButton = (HWND)lParam;
+
+    //    // Changez la couleur de fond du bouton
+    //    SetBkColor(hdcButton, RED); // Couleur de fond
+    //    SetTextColor(hdcButton, TEXT_COLOR); // Couleur du texte
+
+    //    return (LONG)(HBRUSH)GetStockObject(NULL_BRUSH); // Renvoyer un pinceau nul pour empêcher le dessin par défaut
+
+    //}
+    //break;
     case WM_PAINT: 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
         BackgroundColor(hdc, ps);
-        // Draw
 
         EndPaint(hWnd, &ps);
     } break;
