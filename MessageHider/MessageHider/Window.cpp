@@ -1,5 +1,6 @@
 #include "window.h"
-#include "Button.h"
+
+std::vector<Button*> Window::m_buttons;
 
 Window::Window(HINSTANCE hInst, int nCmdShow)
     : hInstance(hInst)
@@ -43,29 +44,42 @@ void Window::CreateButtons()
 {
     int anchorSpacing = 8;
 
-    int themeWidth = 300;
+    int btmBtnW = WINDOW_WIDTH / 2;
+    int btnHeight = 40;
+    int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
+
+    m_buttons.push_back(new Button(ButtonType::Encode, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Decode, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::OK, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
+
+    for (Button* button : m_buttons) button->Create();
+
+    /*int themeWidth = 300;
     Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, hInstance, m_hWnd);
-    themeButton.Create();
+    themeButton.Create();*/
 
-    int downloadImageButtonWidth = 300;
+    /*int downloadImageButtonWidth = 300;
     Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, hInstance, m_hWnd);
-    downloadImageButton.Create();
+    downloadImageButton.Create();*/
 
-    int hideMessageButtonWidth = 480;
+    /*int hideMessageButtonWidth = 480;
     Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, hInstance, m_hWnd);
-    hideMessageButton.Create();
+    hideMessageButton.Create();*/
 
-    int downloadNewImageWidth = 480;
+    /*int downloadNewImageWidth = 480;
     Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, hInstance, m_hWnd);
-    downloadNewImageButton.Create();
+    downloadNewImageButton.Create();*/
 
-    int bottomButtonWidth = WINDOW_WIDTH / 2;
+    /*int bottomButtonWidth = WINDOW_WIDTH / 2;
     int bottomButtonHeight = 40;
     int bottomButtonPosY = WINDOW_HEIGHT - (bottomButtonHeight * 2);
     Button encodeButton(L"ENCODE", LIGHT_GREY, 0, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)5, hInstance, m_hWnd);
     encodeButton.Create();
     Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, hInstance, m_hWnd);
-    decodeButton.Create();
+    decodeButton.Create();*/
 }
 
 ATOM Window::MyRegisterClass() const
@@ -147,24 +161,36 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     switch (message) 
     {
     case WM_COMMAND:
-        switch (LOWORD(wParam))
+    {
+        HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
+
+        for (Button* button : m_buttons)
         {
-        default:
-            // Gérer action
-        case 1: // themeButton
-            // Gérer l'action de cilc
-            break;
-        case 2: // downloadImageButton
-            // Gérer l'action de clic 
-            break;
-        case 3: // hideMessageButton
-            // Gérer l'action de clic 
-            break;
-        case 4: // downloadNewImageButton
-            //
-            break;
+            if (button->GetId() == (HMENU)LOWORD(wParam))
+                //if (button->GetHandle() == reinterpret_cast<HWND>(LOWORD(wParam)))
+            {
+                button->OnClick();
+            }
         }
-        break;
+    }
+        //switch (LOWORD(wParam))
+        //{
+        //default:
+        //    // Gérer action
+        //case 1: // themeButton
+        //    // Gérer l'action de cilc
+        //    break;
+        //case 2: // downloadImageButton
+        //    // Gérer l'action de clic 
+        //    break;
+        //case 3: // hideMessageButton
+        //    // Gérer l'action de clic 
+        //    break;
+        //case 4: // downloadNewImageButton
+        //    //
+        //    break;
+        //}
+        //break;
     case WM_PAINT: 
     {
         PAINTSTRUCT ps;

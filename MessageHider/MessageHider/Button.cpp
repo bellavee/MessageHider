@@ -1,13 +1,51 @@
 #include "Button.h"
 
-Button::Button(const wchar_t* name, COLORREF color, int x, int y, int width, int height, HMENU id, HINSTANCE hInstance, HWND parent)
-	: m_name(name), m_color(color), m_x(x), m_y(y), m_width(width), m_height(height), m_id(id), m_hInstance(hInstance), m_parent(parent), hWnd(nullptr)
+Button::Button(
+    ButtonType type,
+    COLORREF color,
+    int x, int y,
+    int width, int height,
+    HINSTANCE hInstance,
+    HWND parent)
+    :
+    m_type(type),
+    m_color(color),
+    m_x(x), m_y(y),
+    m_width(width), m_height(height),
+    m_hInstance(hInstance),
+    m_parent(parent),
+    hWnd(nullptr)
 {
+    switch (type)
+    {
+    case ButtonType::Encode:
+        m_name = L"ENCODE";
+        m_id = (HMENU)"ENCODE";
+        break;
+    case ButtonType::Decode:
+        m_name = L"DECODE";
+        m_id = (HMENU)"DECODE";
+        break;
+    case ButtonType::Load:
+        m_name = L"Load an image";
+        m_id = (HMENU)"LOAD";
+        break;
+    case ButtonType::Download:
+        m_name = L"Download the new image";
+        m_id = (HMENU)"DOWNLOAD";
+        break;
+    case ButtonType::Theme:
+        m_name = L"T";
+        m_id = (HMENU)"THEME";
+        break;
+    case ButtonType::OK:
+        m_name = L"OK";
+        m_id = (HMENU)"OK";
+        break;
+    }
 }
 
-Button::~Button()
-{
-}
+Button::~Button() { }
 
 void Button::Create()
 {
@@ -31,10 +69,26 @@ void Button::Create()
 
 void Button::OnClick()
 {
-    //On click...
+    switch (m_type)
+    {
+    case ButtonType::Encode:
+        break;
+    case ButtonType::Decode:
+        break;
+    case ButtonType::Load:
+        break;
+    case ButtonType::Download:
+        break;
+    case ButtonType::Theme:
+        break;
+    case ButtonType::OK:
+        break;
+    default:
+        break;
+    }
 }
 
 HWND Button::GetHandle() const
 {
-	return HWND();
+    return hWnd;
 }
