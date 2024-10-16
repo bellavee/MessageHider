@@ -79,10 +79,10 @@ void Button::OnClick()
     case ButtonType::Load:
         try {
             manager.LoadImage("eevee.png");
-            InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
+            InvalidateRect(m_parent, NULL, TRUE); 
         }
         catch (const std::exception& e) {
-            MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+            MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
         }
         break;
     case ButtonType::Download:

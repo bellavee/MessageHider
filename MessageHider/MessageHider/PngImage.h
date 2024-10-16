@@ -8,7 +8,7 @@ public:
     ~PngImage();
 
     void LoadFromFile(const std::string& filename) override;
-    void Render(HDC hdc, int x, int y, int desiredWidth) const override;
+    void Render(HDC hdc, int x, int y, int desiredWidth, int desiredHeight) const override;
 
 private:
     struct PNG_IHDR {

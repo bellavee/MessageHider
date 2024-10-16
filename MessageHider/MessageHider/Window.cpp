@@ -173,6 +173,49 @@ void Window::DrawTitle(HDC hdc)
     TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
+void Window::DrawImage(HDC hdc)
+{
+    AppManager& manager = AppManager::GetInstance();
+    if (manager.HasImageLoaded() && manager.GetImage())
+    {
+        // Calculate the position to center the image in the desired area
+        int windowWidth = WINDOW_WIDTH;
+        int imageAreaTop = 150;  // Approximate Y position below the "Load an image" button
+        int imageAreaBottom = 450;  // Approximate Y position above the input field
+        int imageAreaHeight = imageAreaBottom - imageAreaTop;
+
+        const Image* image = manager.GetImage();
+        int originalWidth = image->GetWidth();
+        int originalHeight = image->GetHeight();
+
+        // Calculate scaling based on both width and height constraints
+        int maxWidth = windowWidth - 100;  // 50px padding on each side
+        int maxHeight = imageAreaHeight;
+
+        float scaleWidth = (float)maxWidth / originalWidth;
+        float scaleHeight = (float)maxHeight / originalHeight;
+        float scale = min(scaleWidth, scaleHeight);
+
+        int desiredWidth = (int)(originalWidth * scale);
+        int desiredHeight = (int)(originalHeight * scale);
+
+        // Center the image horizontally and vertically in the image area
+        int x = (windowWidth - desiredWidth) / 2 - 6;
+        int y = imageAreaTop + (imageAreaHeight - desiredHeight) / 2;
+
+        // Draw the image
+        image->Render(hdc, x, y, desiredWidth, desiredHeight);
+    }
+    else
+    {
+        // Draw a placeholder text if no image is loaded
+        SetTextColor(hdc, RGB(128, 128, 128));
+        SetBkMode(hdc, TRANSPARENT);
+        RECT rect = { 0, 150, WINDOW_WIDTH, 500 };  // Adjust these values to match your layout
+        DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
+}
+
 void Window::CreateComboBox() const
 {
     HWND hComboBox = CreateWindow
@@ -238,19 +281,12 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         HDC hdc = BeginPaint(hWnd, &ps);
         if (pThis)
         {
-            pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
-            pThis->DrawTitle(hdc);
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(BLACK_BRUSH));  // Or use your background color
 
-            if (manager.HasImageLoaded() && manager.GetImage())
-            {
-                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
-            }
-            else
-            {
-                SetTextColor(hdc, RGB(255, 255, 255));
-                SetBkMode(hdc, TRANSPARENT);
-                TextOut(hdc, WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2, L"No image loaded", 15);
-            }
+            pThis->DrawTitle(hdc);
+            pThis->DrawImage(hdc);
         }
         EndPaint(hWnd, &ps);
     }
