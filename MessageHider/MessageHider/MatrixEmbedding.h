@@ -10,6 +10,8 @@
 // et également de les rendre plus difficilement détectables.
 // Seulement un ou deux bits par bloc sont modifiés.
 
+// Convertir le support en matrice
+// Déterminer la taille de la matrice
 // message transformé en matrice
 // recalcul pour intégrer message dans image
 

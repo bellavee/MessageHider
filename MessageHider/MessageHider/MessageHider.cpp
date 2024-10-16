@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "framework.h"
 #include "LSB.h"
+#include "AppManager.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,

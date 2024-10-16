@@ -2,13 +2,16 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
+#include <vector>
+#include "resource.h" // Inclure si on utilises des ressources (ic�nes, etc.)
+#include "Button.h"
 
 #include "PngImage.h"
-#include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
 constexpr int WINDOW_HEIGHT = 900;
+constexpr WCHAR WINDOW_TITLE[] = L"MESSAGE HIDER";
 constexpr COLORREF TEXT_COLOR = RGB(255, 255, 255);
 constexpr COLORREF BACKGROUND_COLOR = RGB(30, 30, 30);
 constexpr COLORREF DARK_GREY = RGB(44, 44, 44);  
@@ -28,26 +31,25 @@ public:
 
 private:
 
-    HINSTANCE hInstance;
-
+    HINSTANCE m_hInstance;
     HWND m_hWnd;
+    HFONT m_hTitleFont;
+    HWND m_hInputField;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];
 
-    //void InitCommonControls();
-    void CreateButtons();
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
-
-    std::unique_ptr<Image> m_image;
+std::unique_ptr<Image> m_image;
     bool m_imageLoaded;
-
     void LoadImage(const std::string& filename);
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
-    void Draw(HDC hdc);
+    void DrawTitle(HDC hdc);
+    void CreateButtons();
+    void CreateInputField();
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -55,4 +57,5 @@ private:
     static ULONG_PTR m_gdiplusToken;
     static void InitializeGdiPlus();
     static void ShutdownGdiPlus();
+    static std::vector<Button*> m_buttons;
 };

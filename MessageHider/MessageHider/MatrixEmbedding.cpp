@@ -2,7 +2,12 @@
 
 bool MatrixEmbedding::Encode(std::string message)
 {
-    return false;
+    if (!Steganography::Encode(message)) return false;
+
+    //
+    
+    Reset();
+    return true;
 }
 
 std::string MatrixEmbedding::Decode()
