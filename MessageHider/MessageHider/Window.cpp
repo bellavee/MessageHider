@@ -51,12 +51,13 @@ void Window::CreateButtons()
     int btnHeight = 40;
     int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
 
-    m_buttons.push_back(new Button(ButtonType::Encode, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Decode, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
     m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, hInstance, m_hWnd));
     m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, hInstance, m_hWnd));
     m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::OK, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
+    //m_buttons.push_back(new Button(ButtonType::DecodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
 
     for (Button* button : m_buttons) button->Create();
 
@@ -155,10 +156,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     switch (message) 
     {
     case WM_CREATE:
-        if (pThis)
-        {
-            pThis->LoadPngImage(); 
-        }
+        if (pThis) pThis->LoadPngImage(); 
         break;
     case WM_COMMAND:
     {
@@ -166,39 +164,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
         for (Button* button : m_buttons)
         {
-            if (button->GetId() == (HMENU)LOWORD(wParam))
-                //if (button->GetHandle() == reinterpret_cast<HWND>(LOWORD(wParam)))
-            {
-                button->OnClick();
-            }
-        case 1: // themeButton
-        case 2: // downloadImageButton
-        case 3: // hideMessageButton
-        case 4: // downloadNewImageButton
-            // Handle button clicks
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
+            if (button->GetId() == (HMENU)LOWORD(wParam)) button->OnClick();
         }
     }
-        //switch (LOWORD(wParam))
-        //{
-        //default:
-        //    // G�rer action
-        //case 1: // themeButton
-        //    // G�rer l'action de cilc
-        //    break;
-        //case 2: // downloadImageButton
-        //    // G�rer l'action de clic 
-        //    break;
-        //case 3: // hideMessageButton
-        //    // G�rer l'action de clic 
-        //    break;
-        //case 4: // downloadNewImageButton
-        //    //
-        //    break;
-        //}
-        //break;
     case WM_PAINT: 
     {
         PAINTSTRUCT ps;

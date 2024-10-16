@@ -1,15 +1,18 @@
 #pragma once
 
 #include <Windows.h>
+#include "AppManager.h"
+#include "LSB.h"
 
 enum class ButtonType
 {
-	Encode,
-	Decode,
+	EncodePage,
+	DecodePage,
 	Load,
 	Download,
 	Theme,
-	OK
+	EncodeAction,
+	DecodeAction
 };
 
 class Button

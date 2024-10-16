@@ -18,29 +18,33 @@ Button::Button(
 {
     switch (type)
     {
-    case ButtonType::Encode:
+    case ButtonType::EncodePage:
         m_name = L"ENCODE";
-        m_id = (HMENU)"ENCODE";
+        m_id = (HMENU)1;
         break;
-    case ButtonType::Decode:
+    case ButtonType::DecodePage:
         m_name = L"DECODE";
-        m_id = (HMENU)"DECODE";
+        m_id = (HMENU)2;
         break;
     case ButtonType::Load:
         m_name = L"Load an image";
-        m_id = (HMENU)"LOAD";
+        m_id = (HMENU)3;
         break;
     case ButtonType::Download:
         m_name = L"Download the new image";
-        m_id = (HMENU)"DOWNLOAD";
+        m_id = (HMENU)4;
         break;
     case ButtonType::Theme:
         m_name = L"T";
-        m_id = (HMENU)"THEME";
+        m_id = (HMENU)5;
         break;
-    case ButtonType::OK:
+    case ButtonType::EncodeAction:
         m_name = L"OK";
-        m_id = (HMENU)"OK";
+        m_id = (HMENU)6;
+        break;
+    case ButtonType::DecodeAction:
+        m_name = L"OK";
+        m_id = (HMENU)7;
         break;
     }
 }
@@ -69,11 +73,13 @@ void Button::Create()
 
 void Button::OnClick()
 {
+    AppManager& manager = AppManager::GetInstance();
+
     switch (m_type)
     {
-    case ButtonType::Encode:
+    case ButtonType::EncodePage:
         break;
-    case ButtonType::Decode:
+    case ButtonType::DecodePage:
         break;
     case ButtonType::Load:
         break;
@@ -81,9 +87,19 @@ void Button::OnClick()
         break;
     case ButtonType::Theme:
         break;
-    case ButtonType::OK:
+    case ButtonType::EncodeAction:
+    {
+        std::string input = manager.GetUserInput();
+        if (input.empty()) break;
+        LSB lsb;
+        lsb.Encode(input);
+    }
         break;
-    default:
+    case ButtonType::DecodeAction:
+    {
+        LSB lsb;
+        std::string result = lsb.Decode();
+    }
         break;
     }
 }
