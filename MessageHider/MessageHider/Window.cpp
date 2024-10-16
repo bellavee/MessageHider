@@ -244,34 +244,6 @@ void Window::DrawLoadError(HDC hdc)
     TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_WIDTH / 2), loadErrorMessage, wcslen(loadErrorMessage));
 }
 
-void Window::CreateComboBox() const
-{
-    HWND hComboBox = CreateWindow
-    (
-        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
-        L"No filter",                                   // Texte affiché par défaut dans la combo box
-        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
-        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),   // Position X 
-        450,                                            // Position Y
-        225,                                            // Largeur
-        100,                                            // Hauteur
-        m_hWnd,                                         // Handle de la fenêtre parent
-        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
-        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
-        NULL                                            // Paramètre additionnel
-    );
-
-    if (hComboBox == NULL) 
-    {
-        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
-        return;
-    }
-
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
-}
-
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static Window* pThis = nullptr;
@@ -312,7 +284,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             // Set background color based on theme
             RECT clientRect;
             GetClientRect(hWnd, &clientRect);
-            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : WHITE_BRUSH));
+            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : LTGRAY_BRUSH));
 
             pThis->DrawTitle(hdc);
             pThis->DrawMessageCapacityText(hdc);
@@ -367,13 +339,4 @@ void Window::InitializeGdiPlus()
 void Window::ShutdownGdiPlus()
 {
     Gdiplus::GdiplusShutdown(m_gdiplusToken);
-    //m_pngImage = std::make_unique<PngImage>();
-    //try {
-    //    m_pngImage->LoadFromFile("sample.png");
-    //    m_imageLoaded = true;
-    //    InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
-    //}
-    //catch (const std::exception& e) {
-    //    MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
-    //}
 }
