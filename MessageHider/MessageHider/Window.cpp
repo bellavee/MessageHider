@@ -214,6 +214,7 @@ void Window::DrawImage(HDC hdc)
         RECT rect = { 0, 150, WINDOW_WIDTH, 500 };  // Adjust these values to match your layout
         DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
+}
 
 void Window::DrawMessageCapacityText(HDC hdc)
 {
@@ -331,7 +332,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
             if (manager.HasImageLoaded() && manager.GetImage())
             {
-                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
+                pThis->DrawImage(hdc);
             }
             else
             {
