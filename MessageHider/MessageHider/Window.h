@@ -45,8 +45,10 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
+    void DrawImage(HDC hdc);
     void DrawMessageCapacityText(HDC hdc);
     void DrawLoadError(HDC hdc);
+
     void CreateComboBox() const;
     void CreateButtons();
     void CreateInputField() const;
