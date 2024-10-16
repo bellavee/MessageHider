@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AppManager.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LSB.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppManager.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="LSB.cpp" />
     <ClCompile Include="MatrixEmbedding.cpp" />
