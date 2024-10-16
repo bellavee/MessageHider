@@ -7,11 +7,13 @@ public:
     virtual ~Image() = default;
 
     virtual void LoadFromFile(const std::string& filename) = 0;
-    virtual void Render(HDC hdc, int x, int y, int desiredWidth) const = 0;
+    virtual void Render(HDC hdc, int x, int y, int desiredWidth, int desiredHeight) const = 0;
 
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
     const std::vector<uint8_t>& GetPixelData() const { return m_pixelData; }
+
+    //virtual void UpdateBitmap() = 0;
 
 protected:
     HBITMAP m_hBitmap = NULL;

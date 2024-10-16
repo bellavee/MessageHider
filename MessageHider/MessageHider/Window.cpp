@@ -5,9 +5,6 @@
 #include "JpegImage.h"
 ULONG_PTR Window::m_gdiplusToken = 0;
 
-
-std::vector<Button*> Window::m_buttons;
-
 Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
 {
     wcscpy_s(m_szTitle, WINDOW_TITLE);
@@ -27,10 +24,11 @@ Window::~Window()
 
 bool Window::Display()
 {
-    CreateComboBox();
     CreateSlider();
-    CreateInputField();
-    CreateButtons();
+    AppManager& manager = AppManager::GetInstance();
+
+    manager.CreateElements(m_hWnd, m_hInstance);
+    CreateButtons(); // TODO -> move to manager
 
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
@@ -55,39 +53,28 @@ void Window::ShowMessageLoop() const
 
 void Window::CreateButtons()
 {
+    AppManager& manager = AppManager::GetInstance();
+    std::vector<Button*> buttons;
+
     int btmBtnW = WINDOW_WIDTH / 2;
     int btnHeight = 40;
     int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
 
-    m_buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, m_hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, m_hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, m_hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::Theme, RED, (465 + ANCHOR_SPACING), 25, 35, 35, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - ANCHOR_SPACING), 100, 300, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING), 750, 480, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING), 700, 480, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::DecodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING), 700, 480, btnHeight, m_hInstance, m_hWnd));
 
-    for (Button* button : m_buttons) button->Create();
-}
+    manager.SetButtons(buttons);
 
-void Window::CreateInputField() const
-{
-    AppManager& manager = AppManager::GetInstance();
-
-    manager.SetInputField(CreateWindowEx
-    (
-        WS_EX_CLIENTEDGE,
-        L"EDIT",
-        L"Enter your secret message...",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
-        (((WINDOW_WIDTH - 480) / 2) - anchorSpacing),
-        540,
-        480,
-        150,
-        m_hWnd,
-        nullptr,
-        m_hInstance,
-        nullptr
-    ));
+    for (Button* button : manager.GetButtons())
+    {
+        if (button->GetPage() == Page::Decode) continue;
+        button->Create();
+    }
 }
 
 ATOM Window::MyRegisterClass() const
@@ -174,14 +161,55 @@ void Window::DrawTitle(HDC hdc)
     TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
-void Window::DrawLoadError(HDC hdc) const
+/*void Window::DrawLoadError(HDC hdc) const
 {
     SelectObject(hdc, m_hNormalFont);
     SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
     const WCHAR* loadErrorMessage = L"No image loaded";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_HEIGHT / 3), loadErrorMessage, wcslen(loadErrorMessage));
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_HEIGHT / 3), loadErrorMessage, wcslen(loadErrorMessage));*/
+void Window::DrawImage(HDC hdc)
+{
+    AppManager& manager = AppManager::GetInstance();
+    if (manager.HasImageLoaded() && manager.GetImage())
+    {
+        // Calculate the position to center the image in the desired area
+        int windowWidth = WINDOW_WIDTH;
+        int imageAreaTop = 150;  // Approximate Y position below the "Load an image" button
+        int imageAreaBottom = 450;  // Approximate Y position above the input field
+        int imageAreaHeight = imageAreaBottom - imageAreaTop;
+
+        const Image* image = manager.GetImage();
+        int originalWidth = image->GetWidth();
+        int originalHeight = image->GetHeight();
+
+        // Calculate scaling based on both width and height constraints
+        int maxWidth = windowWidth - 100;  // 50px padding on each side
+        int maxHeight = imageAreaHeight;
+
+        float scaleWidth = (float)maxWidth / originalWidth;
+        float scaleHeight = (float)maxHeight / originalHeight;
+        float scale = min(scaleWidth, scaleHeight);
+
+        int desiredWidth = (int)(originalWidth * scale);
+        int desiredHeight = (int)(originalHeight * scale);
+
+        // Center the image horizontally and vertically in the image area
+        int x = (windowWidth - desiredWidth) / 2 - 6;
+        int y = imageAreaTop + (imageAreaHeight - desiredHeight) / 2;
+
+        // Draw the image
+        image->Render(hdc, x, y, desiredWidth, desiredHeight);
+    }
+    else
+    {
+        // Draw a placeholder text if no image is loaded
+        SetTextColor(hdc, RGB(128, 128, 128));
+        SetBkMode(hdc, TRANSPARENT);
+        RECT rect = { 0, 150, WINDOW_WIDTH, 500 };  // Adjust these values to match your layout
+        DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
 }
 
 void Window::DrawMessageCapacityText(HDC hdc)
@@ -223,34 +251,6 @@ void Window::DrawFilterIntensityText(HDC hdc) const
 
     const WCHAR* filterIntensityText = L"Filter intensity";
     TextOut(hdc, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), filterIntensityText, wcslen(filterIntensityText));
-}
-
-void Window::CreateComboBox() const
-{
-    HWND hComboBox = CreateWindow
-    (
-        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
-        L"No filter",                                   // Texte affiché par défaut dans la combo box
-        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
-        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),   // Position X 
-        450,                                            // Position Y
-        225,                                            // Largeur
-        100,                                            // Hauteur
-        m_hWnd,                                         // Handle de la fenêtre parent
-        nullptr,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
-        nullptr,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
-        nullptr                                            // Paramètre additionnel
-    );
-
-    if (hComboBox == nullptr)
-    {
-        MessageBox(nullptr, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
-        return;
-    }
-
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
-    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
 }
 
 void Window::CreateSlider()
@@ -297,7 +297,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         break;
     case WM_COMMAND:
     {
-        for (Button* button : m_buttons)
+        for (Button* button : manager.GetButtons())
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
             {
@@ -313,14 +313,18 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         HDC hdc = BeginPaint(hWnd, &ps);
         if (pThis)
         {
-            pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
+            // Set background color based on theme
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : LTGRAY_BRUSH));
+
             pThis->DrawTitle(hdc);
             pThis->DrawMessageCapacityText(hdc);
             pThis->DrawFilterIntensityText(hdc);
 
             if (manager.HasImageLoaded() && manager.GetImage())
             {
-                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
+                pThis->DrawImage(hdc);
             }
             else
             {
@@ -330,23 +334,6 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         EndPaint(hWnd, &ps);
     }
     break;
-    /*case WM_CTLCOLORBTN:
-    {
-        HDC hdcButton = (HDC)wParam;
-        HWND hButton = (HWND)lParam;
-
-        for (Button* button : m_buttons)
-        {
-            if (button->GetId() == (HMENU)GetDlgCtrlID(hButton))
-            {
-                SetBkColor(hdcButton, RED);
-                SetTextColor(hdcButton, RGB(255, 255, 255));
-                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-                return (INT_PTR)hBrush;
-            }
-        }
-    }
-    break;*/
     case WM_ERASEBKGND:
         return 1;
     case WM_DESTROY:
@@ -385,13 +372,4 @@ void Window::InitializeGdiPlus()
 void Window::ShutdownGdiPlus()
 {
     Gdiplus::GdiplusShutdown(m_gdiplusToken);
-    //m_pngImage = std::make_unique<PngImage>();
-    //try {
-    //    m_pngImage->LoadFromFile("sample.png");
-    //    m_imageLoaded = true;
-    //    InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
-    //}
-    //catch (const std::exception& e) {
-    //    MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
-    //}
 }
