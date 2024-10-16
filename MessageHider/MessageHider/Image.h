@@ -7,7 +7,7 @@ public:
     virtual ~Image() = default;
 
     virtual void LoadFromFile(const std::string& filename) = 0;
-    virtual void Render(HDC hdc, int x, int y) const = 0;
+    virtual void Render(HDC hdc, int x, int y, int desiredWidth) const = 0;
 
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }

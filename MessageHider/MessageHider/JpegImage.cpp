@@ -1,5 +1,4 @@
 #include "JpegImage.h"
-#include <stdexcept>
 
 ULONG_PTR JpegImage::m_gdiplusToken = 0;
 int JpegImage::m_instanceCount = 0;
@@ -34,10 +33,16 @@ void JpegImage::LoadFromFile(const std::string& filename) {
     m_height = m_pBitmap->GetHeight();
 }
 
-void JpegImage::Render(HDC hdc, int x, int y) const {
+void JpegImage::Render(HDC hdc, int x, int y, int desiredWidth) const {
     if (m_pBitmap) {
         Gdiplus::Graphics graphics(hdc);
         graphics.DrawImage(m_pBitmap, x, y, m_width, m_height);
+
+        // Calculate the height while maintaining aspect ratio
+        int desiredHeight = (m_height * desiredWidth) / m_width;
+
+        graphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+        graphics.DrawImage(m_pBitmap, x, y, desiredWidth, desiredHeight);
     }
 }
 

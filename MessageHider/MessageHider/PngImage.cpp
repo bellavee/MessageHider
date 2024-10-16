@@ -10,7 +10,7 @@ void PngImage::LoadFromFile(const std::string& filename) {
     CreateBitmapFromPngData(idat, ihdr);
 }
 
-void PngImage::Render(HDC hdc, int x, int y) const {
+void PngImage::Render(HDC hdc, int x, int y, int desiredWidth) const {
     if (m_hBitmap) {
         HDC hdcMem = CreateCompatibleDC(hdc);
         if (hdcMem == NULL) {
@@ -38,6 +38,12 @@ void PngImage::Render(HDC hdc, int x, int y) const {
             ss << "BitBlt failed. Error code: " << error;
             MessageBoxA(NULL, ss.str().c_str(), "Error", MB_ICONERROR | MB_OK);
         }
+
+        // Calculate the height while maintaining aspect ratio
+        int desiredHeight = (m_height * desiredWidth) / m_width;
+
+        SetStretchBltMode(hdc, HALFTONE);
+        StretchBlt(hdc, x, y, desiredWidth, desiredHeight, hdcMem, 0, 0, m_width, m_height, SRCCOPY);
 
         SelectObject(hdcMem, hOldBitmap);
         DeleteDC(hdcMem);

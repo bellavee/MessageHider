@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Image.h"
-#include <windows.h>
-#include <gdiplus.h>
-#include <string>
 
 class JpegImage : public Image {
 public:
@@ -11,7 +8,7 @@ public:
     ~JpegImage();
 
     void LoadFromFile(const std::string& filename) override;
-    void Render(HDC hdc, int x, int y) const override;
+    void Render(HDC hdc, int x, int y, int desiredWidth) const override;
 
 private:
     Gdiplus::Bitmap* m_pBitmap;

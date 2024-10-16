@@ -174,7 +174,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->BackgroundColor(hdc, ps);
             if (pThis->m_imageLoaded && pThis->m_image)
             {
-                pThis->m_image->Render(hdc, 0, 0);
+                pThis->m_image->Render(hdc, 0, 0, WINDOW_WIDTH);
             }
             else if (!pThis->m_imageLoaded)
             {
