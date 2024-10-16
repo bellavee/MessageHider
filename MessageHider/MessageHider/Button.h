@@ -37,7 +37,7 @@ public:
 
 private:
 
-	HWND hWnd;
+	HWND m_hWnd;
 
 	const wchar_t* m_name;
 	COLORREF m_color;

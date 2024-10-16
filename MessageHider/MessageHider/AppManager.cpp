@@ -14,6 +14,8 @@ AppManager& AppManager::GetInstance()
 
 AppManager::AppManager() : m_imageLoaded(false)
 {
+    m_darkTheme = true;
+    //m_pngImage = std::make_unique<PngImage>();
 }
 
 void AppManager::LoadImage(const std::string& filename)

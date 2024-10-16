@@ -133,9 +133,9 @@ BOOL Window::InitInstance(int nCmdShow)
     return TRUE;
 }
 
-void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
+void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color)
 {
-    HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);
+    HBRUSH hBrush = CreateSolidBrush(color);
     FillRect(hdc, &ps.rcPaint, hBrush);
     DeleteObject(hBrush);
 }
@@ -164,7 +164,7 @@ void Window::DrawTitle(HDC hdc)
     }
 
     SelectObject(hdc, m_hTitleFont);
-    SetTextColor(hdc, TEXT_COLOR);
+    SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
     const WCHAR* title = L"MESSAGE HIDER";
@@ -220,7 +220,6 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         break;
     case WM_COMMAND:
     {
-        HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
         for (Button* button : m_buttons)
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
@@ -237,7 +236,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         HDC hdc = BeginPaint(hWnd, &ps);
         if (pThis)
         {
-            pThis->BackgroundColor(hdc, ps);
+            pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
             pThis->DrawTitle(hdc);
 
             if (manager.HasImageLoaded() && manager.GetImage())
@@ -254,6 +253,23 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         EndPaint(hWnd, &ps);
     }
     break;
+    /*case WM_CTLCOLORBTN:
+    {
+        HDC hdcButton = (HDC)wParam;
+        HWND hButton = (HWND)lParam;
+
+        for (Button* button : m_buttons)
+        {
+            if (button->GetId() == (HMENU)GetDlgCtrlID(hButton))
+            {
+                SetBkColor(hdcButton, RED);
+                SetTextColor(hdcButton, RGB(255, 255, 255));
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                return (INT_PTR)hBrush;
+            }
+        }
+    }
+    break;*/
     case WM_ERASEBKGND:
         return 1;
     case WM_DESTROY:
