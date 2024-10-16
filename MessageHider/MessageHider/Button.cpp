@@ -82,6 +82,14 @@ void Button::OnClick()
     case ButtonType::DecodePage:
         break;
     case ButtonType::Load:
+        try {
+            manager.GetPngImage()->LoadFromFile("eevee.png");
+            manager.SetImageLoaded(true);
+            InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
+        }
+        catch (const std::exception& e) {
+            MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+        }
         break;
     case ButtonType::Download:
         break;
@@ -102,9 +110,4 @@ void Button::OnClick()
     }
         break;
     }
-}
-
-HWND Button::GetHandle() const
-{
-    return hWnd;
 }
