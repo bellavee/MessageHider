@@ -10,11 +10,12 @@ public:
     Image* GetImage() { return m_image.get(); }
     bool HasImageLoaded() const { return m_imageLoaded; }
     bool HasDarkTheme() const { return m_darkTheme; }
-    std::string GetUserInput() const { return m_userInput; }
+    std::string GetUserInput();
 
     void SetUserInput(std::string input) { m_userInput = input; }
     void SetImageLoaded(bool value) { m_imageLoaded = value; }
     void SetDarkTheme(bool value) { m_darkTheme = value; }
+    void SetInputField(HWND handle) { m_inputField = handle; }
 
     void LoadImage(const std::string& filename);
 
@@ -25,6 +26,7 @@ private:
     bool m_imageLoaded;
     bool m_darkTheme;
     std::string m_userInput;
+    HWND m_inputField;
 
     AppManager();
     AppManager(const AppManager&) = delete;
