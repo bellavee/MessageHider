@@ -94,13 +94,18 @@ void Button::OnClick()
     case ButtonType::Download:
         break;
     case ButtonType::Theme:
+        manager.SetDarkTheme(!manager.HasDarkTheme());
+        InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
         break;
     case ButtonType::EncodeAction:
     {
         std::string input = manager.GetUserInput();
-        if (input.empty()) break;
+        if (input.empty() || !manager.HasImageLoaded()) break;
         LSB lsb;
         lsb.Encode(input);
+
+        input = input.empty();
+        manager.SetUserInput(input);
     }
         break;
     case ButtonType::DecodeAction:

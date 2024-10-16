@@ -11,8 +11,8 @@
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
 constexpr int WINDOW_HEIGHT = 900;
-constexpr COLORREF TEXT_COLOR = RGB(255, 255, 255);
-constexpr COLORREF BACKGROUND_COLOR = RGB(30, 30, 30);
+constexpr COLORREF WHITE = RGB(255, 255, 255);
+constexpr COLORREF BLACK = RGB(30, 30, 30);
 constexpr COLORREF DARK_GREY = RGB(44, 44, 44);  
 constexpr COLORREF LIGHT_GREY = RGB(84, 84, 84);
 constexpr COLORREF RED = RGB(237, 54, 91);
@@ -45,7 +45,7 @@ private:
 
     void LoadPngImage();
 
-    static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
+    static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void Draw(HDC hdc);
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

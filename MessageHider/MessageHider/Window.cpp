@@ -131,9 +131,9 @@ BOOL Window::InitInstance(int nCmdShow)
     return TRUE;
 }
 
-void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
+void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color)
 {
-    HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);
+    HBRUSH hBrush = CreateSolidBrush(color);
     FillRect(hdc, &ps.rcPaint, hBrush);
     DeleteObject(hBrush);
 }
@@ -179,7 +179,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
         if (pThis)
         {
-            pThis->BackgroundColor(hdc, ps);
+            pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
             if (manager.HasImageLoaded() && manager.GetPngImage())
             {
                 manager.GetPngImage()->Render(hdc, 0, 0);
