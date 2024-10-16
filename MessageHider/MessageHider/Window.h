@@ -3,24 +3,25 @@
 #include <windows.h>
 #include <CommCtrl.h>
 #include <vector>
-#include "resource.h" // Inclure si on utilises des ressources (ic�nes, etc.)
+#include "resource.h"
 #include "Button.h"
-
 #include "PngImage.h"
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
 constexpr int WINDOW_HEIGHT = 900;
+constexpr int anchorSpacing = 8;
+
 constexpr WCHAR WINDOW_TITLE[] = L"MESSAGE HIDER";
 constexpr COLORREF TEXT_COLOR = RGB(255, 255, 255);
 constexpr COLORREF BACKGROUND_COLOR = RGB(30, 30, 30);
-constexpr COLORREF DARK_GREY = RGB(44, 44, 44);  
+constexpr COLORREF DARK_GREY = RGB(44, 44, 44);
 constexpr COLORREF LIGHT_GREY = RGB(84, 84, 84);
 constexpr COLORREF RED = RGB(237, 54, 91);
 constexpr COLORREF GREEN = RGB(76, 175, 80);
 constexpr COLORREF BLUE = RGB(0, 140, 186);
 
-class Window 
+class Window
 {
 public:
     Window(HINSTANCE hInstance, int nCmdShow);
@@ -30,7 +31,6 @@ public:
     void ShowMessageLoop() const;
 
 private:
-
     HINSTANCE m_hInstance;
     HWND m_hWnd;
     HFONT m_hTitleFont;
@@ -47,6 +47,7 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void DrawTitle(HDC hdc);
+    void CreateComboBox() const;
     void CreateButtons();
     void CreateInputField();
 
