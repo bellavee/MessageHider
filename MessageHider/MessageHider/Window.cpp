@@ -68,7 +68,7 @@ void Window::CreateButtons()
     for (Button* button : m_buttons) button->Create();
 }
 
-void Window::CreateInputField()
+void Window::CreateInputField() const
 {
     AppManager& manager = AppManager::GetInstance();
 
@@ -214,6 +214,46 @@ void Window::DrawImage(HDC hdc)
         RECT rect = { 0, 150, WINDOW_WIDTH, 500 };  // Adjust these values to match your layout
         DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
+
+void Window::DrawMessageCapacityText(HDC hdc)
+{
+    if (!m_hNormalFont)
+    {
+        m_hNormalFont = CreateFont
+        (
+            15,                         // Hauteur de la police
+            0,                          // Largeur de la police
+            0,                          // Angle de l'orientation de la police
+            0,                          // Angle d'orientation du texte
+            FALSE,                      // Gras
+            FALSE,                      // Italique
+            FALSE,                      // Souligné
+            FALSE,                      // Barré
+            DEFAULT_CHARSET,            // Jeu de caractères par défaut
+            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
+            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
+            DEFAULT_QUALITY,            // Qualité de rendu par défaut
+            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
+            L"Arial"                    // Nom de la police
+        );
+    }
+
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, WHITE);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* messageCapacity = L"Maximum message capacity : ";
+    TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
+}
+
+void Window::DrawLoadError(HDC hdc)
+{
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, WHITE);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* loadErrorMessage = L"No image loaded";
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_WIDTH / 2), loadErrorMessage, wcslen(loadErrorMessage));
 }
 
 void Window::CreateComboBox() const
@@ -281,12 +321,22 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         HDC hdc = BeginPaint(hWnd, &ps);
         if (pThis)
         {
+            // Set background color based on theme
             RECT clientRect;
             GetClientRect(hWnd, &clientRect);
-            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(BLACK_BRUSH));  // Or use your background color
+            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : WHITE_BRUSH));
 
             pThis->DrawTitle(hdc);
-            pThis->DrawImage(hdc);
+            pThis->DrawMessageCapacityText(hdc);
+
+            if (manager.HasImageLoaded() && manager.GetImage())
+            {
+                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
+            }
+            else
+            {
+                pThis->DrawLoadError(hdc);
+            }
         }
         EndPaint(hWnd, &ps);
     }
