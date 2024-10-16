@@ -164,7 +164,7 @@ void Window::DrawTitle(HDC hdc)
     }
 
     SelectObject(hdc, m_hTitleFont);
-    SetTextColor(hdc, TEXT_COLOR);
+    SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
     const WCHAR* title = L"MESSAGE HIDER";
