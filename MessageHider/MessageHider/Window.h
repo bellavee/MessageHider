@@ -20,6 +20,8 @@ constexpr COLORREF RED = RGB(237, 54, 91);
 constexpr COLORREF GREEN = RGB(76, 175, 80);
 constexpr COLORREF BLUE = RGB(0, 140, 186);
 
+#define IDC_SLIDER 101
+
 class Window
 {
 public:
@@ -32,6 +34,7 @@ public:
 private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
+    HWND m_hSlider;
 
     HFONT m_hTitleFont;
     HFONT m_hNormalFont;
@@ -45,9 +48,11 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
+    void DrawLoadError(HDC hdc) const;
     void DrawMessageCapacityText(HDC hdc);
-    void DrawLoadError(HDC hdc);
+    void DrawFilterIntensityText(HDC hdc) const;
     void CreateComboBox() const;
+    void CreateSlider();
     void CreateButtons();
     void CreateInputField() const;
 

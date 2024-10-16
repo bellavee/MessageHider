@@ -28,8 +28,9 @@ Window::~Window()
 bool Window::Display()
 {
     CreateComboBox();
-    CreateButtons();
+    CreateSlider();
     CreateInputField();
+    CreateButtons();
 
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
@@ -173,6 +174,16 @@ void Window::DrawTitle(HDC hdc)
     TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
+void Window::DrawLoadError(HDC hdc) const
+{
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, WHITE);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* loadErrorMessage = L"No image loaded";
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_HEIGHT / 3), loadErrorMessage, wcslen(loadErrorMessage));
+}
+
 void Window::DrawMessageCapacityText(HDC hdc)
 {
     if (!m_hNormalFont)
@@ -204,14 +215,14 @@ void Window::DrawMessageCapacityText(HDC hdc)
     TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
 }
 
-void Window::DrawLoadError(HDC hdc)
+void Window::DrawFilterIntensityText(HDC hdc) const
 {
     SelectObject(hdc, m_hNormalFont);
     SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
-    const WCHAR* loadErrorMessage = L"No image loaded";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_WIDTH / 2), loadErrorMessage, wcslen(loadErrorMessage));
+    const WCHAR* filterIntensityText = L"Filter intensity";
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), filterIntensityText, wcslen(filterIntensityText));
 }
 
 void Window::CreateComboBox() const
@@ -226,20 +237,43 @@ void Window::CreateComboBox() const
         225,                                            // Largeur
         100,                                            // Hauteur
         m_hWnd,                                         // Handle de la fenêtre parent
-        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
-        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
-        NULL                                            // Paramètre additionnel
+        nullptr,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
+        nullptr,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
+        nullptr                                            // Paramètre additionnel
     );
 
-    if (hComboBox == NULL) 
+    if (hComboBox == nullptr)
     {
-        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
+        MessageBox(nullptr, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
         return;
     }
 
     SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
     SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
     SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+}
+
+void Window::CreateSlider()
+{
+    m_hSlider = CreateWindowEx
+    (
+        0,                                      
+        TRACKBAR_CLASS,                                                 // Classe
+        L"",                                                            // Texte de la fenêtre
+        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
+        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),                   // Position X
+        500,                                                            // Position Y 
+        450,                                                            // Largeur
+        20,                                                             // Hauteur
+        m_hWnd,                                                         // Handle de la fenêtre parent
+        nullptr,                                                        // Identifiant du slider 
+        nullptr,                                                        // Instance de l'application
+        nullptr                                                         // Paramètre additionnel
+    );
+
+    // Définir la plage du slider
+    SendMessage(m_hSlider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
+    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                       // Position initiale à 50
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -282,6 +316,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
             pThis->DrawTitle(hdc);
             pThis->DrawMessageCapacityText(hdc);
+            pThis->DrawFilterIntensityText(hdc);
 
             if (manager.HasImageLoaded() && manager.GetImage())
             {
@@ -289,12 +324,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             }
             else
             {
-
                 pThis->DrawLoadError(hdc);
-
-                //SetTextColor(hdc, RGB(255, 255, 255));
-                //SetBkMode(hdc, TRANSPARENT);
-                //TextOut(hdc, WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2, L"No image loaded", 15);
             }
         }
         EndPaint(hWnd, &ps);
