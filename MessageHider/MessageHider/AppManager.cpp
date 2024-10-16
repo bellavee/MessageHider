@@ -6,10 +6,31 @@ std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
 AppManager& AppManager::GetInstance()
 {
-    if (m_instance == nullptr) {
+    if (m_instance == nullptr)
+    {
         m_instance = std::unique_ptr<AppManager>(new AppManager());
     }
+
     return *m_instance;
+}
+
+std::string AppManager::GetUserInput()
+{
+    m_userInput.clear();
+    int length = GetWindowTextLength(m_inputField);
+
+    if (length > 0) {
+        // Créez un buffer pour stocker le texte
+        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caractère null
+        GetWindowText(m_inputField, buffer, length + 1);
+
+        std::wstring wstr(buffer);
+        m_userInput.assign(wstr.begin(), wstr.end());
+
+        delete[] buffer;
+    }
+
+    return m_userInput;
 }
 
 AppManager::AppManager() : m_imageLoaded(false)

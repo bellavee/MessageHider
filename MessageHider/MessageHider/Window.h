@@ -33,7 +33,6 @@ private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
     HFONT m_hTitleFont;
-    HWND m_hInputField;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];

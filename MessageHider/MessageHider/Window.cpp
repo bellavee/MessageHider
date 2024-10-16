@@ -70,7 +70,9 @@ void Window::CreateButtons()
 
 void Window::CreateInputField()
 {
-    m_hInputField = CreateWindowEx
+    AppManager& manager = AppManager::GetInstance();
+
+    manager.SetInputField(CreateWindowEx
     (
         WS_EX_CLIENTEDGE,
         L"EDIT",
@@ -84,7 +86,7 @@ void Window::CreateInputField()
         nullptr,
         m_hInstance,
         nullptr
-    );
+    ));
 }
 
 ATOM Window::MyRegisterClass() const
