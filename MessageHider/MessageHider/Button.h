@@ -32,7 +32,7 @@ public:
 	void Create();
 	virtual void OnClick();
 
-	HWND GetHandle() const;
+	//HWND GetHandle() const;
 	HMENU GetId() const { return m_id; }
 
 private:
@@ -44,6 +44,6 @@ private:
 	int m_x, m_y, m_width, m_height;
 	HMENU m_id;
 	HINSTANCE m_hInstance;
-	HWND m_parent;
+	HWND m_parent; // parent
 	ButtonType m_type;
 };
