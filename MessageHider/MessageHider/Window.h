@@ -34,6 +34,7 @@ private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
     HFONT m_hTitleFont;
+    HWND m_hInputField;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];
@@ -50,7 +51,7 @@ private:
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void DrawTitle(HDC hdc);
     void CreateButtons();
-
+    void CreateInputField();
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

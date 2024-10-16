@@ -66,6 +66,16 @@ void Window::CreateButtons()
     for (Button* button : m_buttons) button->Create();
 }
 
+void Window::CreateInputField()
+{
+    m_hInputField = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+        (WINDOW_WIDTH / 20), (WINDOW_HEIGHT / 10), (WINDOW_WIDTH - 40), 25,
+        m_hWnd, nullptr, m_hInstance, nullptr);
+
+    for (Button* button : m_buttons) button->Create();
+}
+
 ATOM Window::MyRegisterClass() const
 {
     WNDCLASSEXW wcex = { sizeof(WNDCLASSEX) };
@@ -181,7 +191,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+
         //DrawTitle(hdc);
+
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
