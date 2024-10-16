@@ -30,6 +30,7 @@ public:
 private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
+    HWND m_hSlider;
 
     HFONT m_hTitleFont;
     HFONT m_hNormalFont;
@@ -43,9 +44,10 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
-    void DrawImage(HDC hdc);
     void DrawMessageCapacityText(HDC hdc);
-    void DrawLoadError(HDC hdc);
+    void DrawFilterIntensityText(HDC hdc) const;
+    void CreateSlider();
+    void DrawImage(HDC hdc);
 
     void CreateButtons();
 

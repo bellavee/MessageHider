@@ -24,6 +24,7 @@ Window::~Window()
 
 bool Window::Display()
 {
+    CreateSlider();
     AppManager& manager = AppManager::GetInstance();
 
     manager.CreateElements(m_hWnd, m_hInstance);
@@ -234,14 +235,37 @@ void Window::DrawMessageCapacityText(HDC hdc)
     TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
 }
 
-void Window::DrawLoadError(HDC hdc)
+void Window::DrawFilterIntensityText(HDC hdc) const
 {
     SelectObject(hdc, m_hNormalFont);
     SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
-    const WCHAR* loadErrorMessage = L"No image loaded";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_WIDTH / 2), loadErrorMessage, wcslen(loadErrorMessage));
+    const WCHAR* filterIntensityText = L"Filter intensity";
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), filterIntensityText, wcslen(filterIntensityText));
+}
+
+void Window::CreateSlider()
+{
+    m_hSlider = CreateWindowEx
+    (
+        0,                                      
+        TRACKBAR_CLASS,                                                 // Classe
+        L"",                                                            // Texte de la fenêtre
+        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                   // Position X
+        500,                                                            // Position Y 
+        450,                                                            // Largeur
+        20,                                                             // Hauteur
+        m_hWnd,                                                         // Handle de la fenêtre parent
+        nullptr,                                                        // Identifiant du slider 
+        nullptr,                                                        // Instance de l'application
+        nullptr                                                         // Paramètre additionnel
+    );
+
+    // Définir la plage du slider
+    SendMessage(m_hSlider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
+    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                       // Position initiale à 50
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -288,15 +312,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
             pThis->DrawTitle(hdc);
             pThis->DrawMessageCapacityText(hdc);
+            pThis->DrawFilterIntensityText(hdc);
 
-            if (manager.HasImageLoaded() && manager.GetImage())
-            {
-                pThis->DrawImage(hdc);
-            }
-            else
-            {
-                pThis->DrawLoadError(hdc);
-            }
+            pThis->DrawImage(hdc);
         }
         EndPaint(hWnd, &ps);
     }
