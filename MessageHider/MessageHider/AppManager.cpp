@@ -1,6 +1,7 @@
 #include "AppManager.h"
 #include "PngImage.h"
 #include "JpegImage.h"
+#include "Button.h"
 
 std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
@@ -33,10 +34,96 @@ std::string AppManager::GetUserInput()
     return m_userInput;
 }
 
+void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
+{
+    m_wHWND = hwnd;
+    m_wInstance = instance;
+
+    CreateInputField();
+    CreateDropdown();
+}
+
+void AppManager::CreateInputField()
+{
+    m_inputField = CreateWindowEx
+    (
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L"Enter your secret message...",
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
+        540,
+        480,
+        150,
+        m_wHWND,
+        nullptr,
+        m_wInstance,
+        nullptr
+    );
+}
+
+void AppManager::CreateDropdown()
+{
+    m_dropdown = CreateWindow
+    (
+        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
+        L"No filter",                                   // Texte affiché par défaut dans la combo box
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),   // Position X 
+        450,                                            // Position Y
+        225,                                            // Largeur
+        100,                                            // Hauteur
+        m_wHWND,                                         // Handle de la fenêtre parent
+        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
+        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
+        NULL                                            // Paramètre additionnel
+    );
+
+    if (m_dropdown == NULL)
+    {
+        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+}
+
+void AppManager::HandleNewPage()
+{
+    for (Button* button : m_buttons)
+    {
+        switch (button->GetPage())
+        {
+        case Page::Encode:
+        case Page::Decode:
+            if (button->GetPage() == m_currentPage) button->Create();
+            else button->Destroy();
+            break;
+        }
+    }
+
+    switch (m_currentPage)
+    {
+    case Page::Encode:
+        CreateInputField();
+        CreateDropdown();
+        break;
+    case Page::Decode:
+        DestroyWindow(m_inputField);
+        DestroyWindow(m_dropdown);
+        break;
+    }
+
+    //m_imageLoaded = false;
+    // TODO -> remove loaded image
+}
+
 AppManager::AppManager() : m_imageLoaded(false)
 {
     m_darkTheme = true;
-    //m_pngImage = std::make_unique<PngImage>();
+    m_currentPage = Page::Encode;
 }
 
 void AppManager::LoadImage(const std::string& filename)

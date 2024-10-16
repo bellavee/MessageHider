@@ -2,20 +2,44 @@
 
 #include "Image.h"
 
+class Button;
+
+constexpr int WINDOW_WIDTH = 540;
+constexpr int WINDOW_HEIGHT = 900;
+constexpr int ANCHOR_SPACING = 8;
+
+enum class Page
+{
+    All,
+    Encode,
+    Decode
+};
+
 class AppManager
 {
 public:
     static AppManager& GetInstance();
 
+    std::string GetUserInput();
+
+    void CreateElements(HWND hwnd, HINSTANCE instance);
+    void CreateInputField();
+    void CreateDropdown();
+    void HandleNewPage();
+
+    // Getters
     Image* GetImage() { return m_image.get(); }
     bool HasImageLoaded() const { return m_imageLoaded; }
     bool HasDarkTheme() const { return m_darkTheme; }
-    std::string GetUserInput();
+    Page GetCurrentPage() const { return m_currentPage; }
+    std::vector<Button*> GetButtons() { return m_buttons; }
 
+    // Setters
     void SetUserInput(std::string input) { m_userInput = input; }
     void SetImageLoaded(bool value) { m_imageLoaded = value; }
     void SetDarkTheme(bool value) { m_darkTheme = value; }
-    void SetInputField(HWND handle) { m_inputField = handle; }
+    void SetCurrentPage(Page newPage) { m_currentPage = newPage; }
+    void SetButtons(std::vector<Button*> buttons) { m_buttons = buttons; }
 
     void LoadImage(const std::string& filename);
 
@@ -26,7 +50,16 @@ private:
     bool m_imageLoaded;
     bool m_darkTheme;
     std::string m_userInput;
+    Page m_currentPage;
+
+    HWND m_wHWND;
+    HINSTANCE m_wInstance;
+
+    // Elements
+    std::vector<Button*> m_buttons;
     HWND m_inputField;
+    HWND m_dropdown;
+    HWND m_slider;
 
     AppManager();
     AppManager(const AppManager&) = delete;
