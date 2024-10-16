@@ -41,9 +41,6 @@ private:
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
-std::unique_ptr<Image> m_image;
-    bool m_imageLoaded;
-    void LoadImage(const std::string& filename);
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);

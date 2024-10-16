@@ -78,8 +78,7 @@ void Button::OnClick()
         break;
     case ButtonType::Load:
         try {
-            manager.GetPngImage()->LoadFromFile("eevee.png");
-            manager.SetImageLoaded(true);
+            manager.LoadImage("eevee.png");
             InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
         }
         catch (const std::exception& e) {

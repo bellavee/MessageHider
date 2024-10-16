@@ -216,14 +216,8 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
     switch (message) 
     {
-    //case WM_CREATE:
-    //    if (pThis)
-    //    {
-
-    //        // Initialize AppManager or load image if needed
-    //        manager.LoadImage("mountains.png");  // Assuming this method exists
-    //    }
-    //    break;
+    case WM_CREATE:
+        break;
     case WM_COMMAND:
     {
         for (Button* button : m_buttons)
@@ -244,9 +238,16 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         {
             pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : WHITE);
             pThis->DrawTitle(hdc);
-            if (manager.HasImageLoaded() && manager.GetPngImage())
+
+            if (manager.HasImageLoaded() && manager.GetImage())
             {
-                manager.GetPngImage()->Render(hdc, 0, 0, 400);
+                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
+            }
+            else
+            {
+                SetTextColor(hdc, RGB(255, 255, 255));
+                SetBkMode(hdc, TRANSPARENT);
+                TextOut(hdc, WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2, L"No image loaded", 15);
             }
         }
         EndPaint(hWnd, &ps);
@@ -296,37 +297,6 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         break;
     }
     return (INT_PTR)FALSE;
-}
-
-void Window::LoadImage(const std::string& filename)
-{
-    size_t dotPos = filename.find_last_of('.');
-    std::string extension;
-    if (dotPos != std::string::npos) {
-        extension = filename.substr(dotPos);
-    }
-
-    // Convert to lowercase for case-insensitive comparison
-    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-
-    if (extension == ".png") {
-        m_image = std::make_unique<PngImage>();
-    }
-    else if (extension == ".jpg" || extension == ".jpeg") {
-        m_image = std::make_unique<JpegImage>();
-    }
-    else {
-        throw std::runtime_error("Unsupported image format");
-    }
-
-    try {
-        m_image->LoadFromFile(filename);
-        m_imageLoaded = true;
-        InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
-    }
-    catch (const std::exception& e) {
-        MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
-    }
 }
 
 void Window::InitializeGdiPlus()
