@@ -53,7 +53,7 @@ Button::~Button() { }
 
 void Button::Create()
 {
-	m_hWnd = CreateWindow(
+    m_hWnd = CreateWindow(
         L"BUTTON",                                          // nom de la classe de la fenêtre
         m_name,                                             // texte du bouton
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, // styles
@@ -63,7 +63,7 @@ void Button::Create()
         m_id,                                               // identifiant du bouton
         m_hInstance,                                        // instance de l'application
         nullptr                                             // paramètre additionnel
-	);
+    );
 }
 
 void Button::OnClick()
@@ -77,19 +77,44 @@ void Button::OnClick()
     case ButtonType::DecodePage:
         break;
     case ButtonType::Load:
-        try {
-            manager.LoadImage("eevee.png");
-            InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
+    {
+        // Ouvrir l'explorateur de fichiers
+        OPENFILENAME ofn;
+        wchar_t szFile[260] = { 0 };
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = m_parent;
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = L"Images\0*.png;*.jpg;*.bmp\0All Files\0*.*\0";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        if (GetOpenFileName(&ofn) == TRUE)
+        {
+            // Conversion de wchar_t[] (chemin de fichier) en std::string après la sélection du fichier
+            std::wstring wstr(szFile);
+            std::string file(wstr.begin(), wstr.end());
+
+            try {
+                manager.LoadImage(file);                    // Charger l'image sélectionnée
+                InvalidateRect(m_parent, NULL, TRUE);       // Forcer le rafraîchissement de la fenêtre
+            }
+            catch (const std::exception& e) {
+                MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
+            }
         }
-        catch (const std::exception& e) {
-            MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
-        }
-        break;
+    }
+    break;
     case ButtonType::Download:
         break;
     case ButtonType::Theme:
         manager.SetDarkTheme(!manager.HasDarkTheme());
-        InvalidateRect(m_parent, NULL, TRUE);  // Force a redraw
+        InvalidateRect(m_parent, NULL, TRUE);  // Forcer le rafraîchissement de la fenêtre
         break;
     case ButtonType::EncodeAction:
     {
@@ -101,12 +126,12 @@ void Button::OnClick()
         input = input.empty();
         manager.SetUserInput(input);
     }
-        break;
+    break;
     case ButtonType::DecodeAction:
     {
         LSB lsb;
         std::string result = lsb.Decode();
     }
-        break;
+    break;
     }
 }
