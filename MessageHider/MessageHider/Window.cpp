@@ -161,14 +161,6 @@ void Window::DrawTitle(HDC hdc)
     TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
-/*void Window::DrawLoadError(HDC hdc) const
-{
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, WHITE);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* loadErrorMessage = L"No image loaded";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_HEIGHT / 3), loadErrorMessage, wcslen(loadErrorMessage));*/
 void Window::DrawImage(HDC hdc)
 {
     AppManager& manager = AppManager::GetInstance();
@@ -261,7 +253,7 @@ void Window::CreateSlider()
         TRACKBAR_CLASS,                                                 // Classe
         L"",                                                            // Texte de la fenêtre
         WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),                   // Position X
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                   // Position X
         500,                                                            // Position Y 
         450,                                                            // Largeur
         20,                                                             // Hauteur
@@ -322,14 +314,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->DrawMessageCapacityText(hdc);
             pThis->DrawFilterIntensityText(hdc);
 
-            if (manager.HasImageLoaded() && manager.GetImage())
-            {
-                pThis->DrawImage(hdc);
-            }
-            else
-            {
-                pThis->DrawLoadError(hdc);
-            }
+            pThis->DrawImage(hdc);
         }
         EndPaint(hWnd, &ps);
     }

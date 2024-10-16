@@ -44,12 +44,10 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
-    //void DrawLoadError(HDC hdc) const;
     void DrawMessageCapacityText(HDC hdc);
     void DrawFilterIntensityText(HDC hdc) const;
     void CreateSlider();
     void DrawImage(HDC hdc);
-    void DrawLoadError(HDC hdc);
 
     void CreateButtons();
 
