@@ -1,4 +1,10 @@
+#include <algorithm>
+
 #include "window.h"
+#include "Button.h"
+#include "JpegImage.h"
+ULONG_PTR Window::m_gdiplusToken = 0;
+
 
 std::vector<Button*> Window::m_buttons;
 
@@ -176,7 +182,6 @@ void Window::DrawTitle(HDC hdc)
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
     static Window* pThis = nullptr;
-
     if (message == WM_NCCREATE)
     {
         pThis = static_cast<Window*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
@@ -187,15 +192,20 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         pThis = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     }
 
+    AppManager& manager = AppManager::GetInstance();
+
     switch (message) 
     {
     case WM_CREATE:
-        if (pThis) pThis->LoadPngImage(); 
+        if (pThis)
+        {
+            // Initialize AppManager or load image if needed
+            manager.LoadImage("mountains.png");  // Assuming this method exists
+        }
         break;
     case WM_COMMAND:
     {
         HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
-
         for (Button* button : m_buttons)
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
@@ -205,23 +215,22 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             }
         }
     }
+    break;
     case WM_PAINT:
     {
-        AppManager& manager = AppManager::GetInstance();
-
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
-            pThis->DrawTitle(hdc); // Ajoutez cette ligne pour dessiner le titre
+            pThis->DrawTitle(hdc); // Draw the title
+
+            // Render the image using AppManager
             if (manager.HasImageLoaded() && manager.GetPngImage())
             {
                 manager.GetPngImage()->Render(hdc, 0, 0);
             }
         }
-
         EndPaint(hWnd, &ps);
     }
     break;
@@ -253,8 +262,46 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     return (INT_PTR)FALSE;
 }
 
-void Window::LoadPngImage()
+void Window::LoadImage(const std::string& filename)
 {
+    size_t dotPos = filename.find_last_of('.');
+    std::string extension;
+    if (dotPos != std::string::npos) {
+        extension = filename.substr(dotPos);
+    }
+
+    // Convert to lowercase for case-insensitive comparison
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+    if (extension == ".png") {
+        m_image = std::make_unique<PngImage>();
+    }
+    else if (extension == ".jpg" || extension == ".jpeg") {
+        m_image = std::make_unique<JpegImage>();
+    }
+    else {
+        throw std::runtime_error("Unsupported image format");
+    }
+
+    try {
+        m_image->LoadFromFile(filename);
+        m_imageLoaded = true;
+        InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
+    }
+    catch (const std::exception& e) {
+        MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
+    }
+}
+
+void Window::InitializeGdiPlus()
+{
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+}
+
+void Window::ShutdownGdiPlus()
+{
+    Gdiplus::GdiplusShutdown(m_gdiplusToken);
     //m_pngImage = std::make_unique<PngImage>();
     //try {
     //    m_pngImage->LoadFromFile("sample.png");
