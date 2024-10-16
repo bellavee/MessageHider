@@ -2,8 +2,7 @@
 
 std::vector<Button*> Window::m_buttons;
 
-Window::Window(HINSTANCE hInst, int nCmdShow)
-    : m_hInstance(hInst), m_imageLoaded(false)
+Window::Window(HINSTANCE hInst, int nCmdShow) : hInstance(hInst)
 {
 
     wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
@@ -184,11 +183,17 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
         for (Button* button : m_buttons)
         {
-            if (button->GetId() == (HMENU)LOWORD(wParam)) button->OnClick();
+            if (button->GetId() == (HMENU)LOWORD(wParam))
+            {
+                button->OnClick();
+                break;
+            }
         }
     }
     case WM_PAINT: 
     {
+        AppManager& manager = AppManager::GetInstance();
+
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
@@ -197,14 +202,14 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
-            if (pThis->m_imageLoaded && pThis->m_pngImage)
+            if (manager.HasImageLoaded() && manager.GetPngImage())
             {
-                pThis->m_pngImage->Render(hdc, 0, 0);
+                manager.GetPngImage()->Render(hdc, 0, 0);
             }
-            else if (!pThis->m_imageLoaded)
+            /*else if (!manager.HasImageLoaded())
             {
                 TextOutA(hdc, 10, 10, "Loading image...", 15);
-            }
+            }*/
         }
 
         EndPaint(hWnd, &ps);
@@ -240,13 +245,13 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 void Window::LoadPngImage()
 {
-    m_pngImage = std::make_unique<PngImage>();
-    try {
-        m_pngImage->LoadFromFile("sample.png");
-        m_imageLoaded = true;
-        InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
-    }
-    catch (const std::exception& e) {
-        MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
-    }
+    //m_pngImage = std::make_unique<PngImage>();
+    //try {
+    //    m_pngImage->LoadFromFile("sample.png");
+    //    m_imageLoaded = true;
+    //    InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
+    //}
+    //catch (const std::exception& e) {
+    //    MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+    //}
 }

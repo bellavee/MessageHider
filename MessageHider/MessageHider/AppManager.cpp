@@ -9,3 +9,9 @@ AppManager& AppManager::GetInstance()
     }
     return *m_instance;
 }
+
+AppManager::AppManager()
+{
+    m_imageLoaded = false;
+    m_pngImage = std::make_unique<PngImage>();
+}

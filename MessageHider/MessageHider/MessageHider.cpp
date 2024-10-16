@@ -12,8 +12,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    AppManager& manager = AppManager::GetInstance();
-
     // Temp
     LSB lsb;
     if (!lsb.Encode("Long message de test")) return 0;

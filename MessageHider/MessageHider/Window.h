@@ -43,9 +43,6 @@ private:
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
 
-    std::unique_ptr<PngImage> m_pngImage;
-    bool m_imageLoaded;
-
     void LoadPngImage();
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
