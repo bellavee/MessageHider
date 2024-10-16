@@ -1,5 +1,10 @@
+#include <algorithm>
+
 #include "window.h"
 #include "Button.h"
+#include "JpegImage.h"
+
+ULONG_PTR Window::m_gdiplusToken = 0;
 
 Window::Window(HINSTANCE hInst, int nCmdShow)
     : hInstance(hInst), m_imageLoaded(false)
@@ -143,7 +148,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     case WM_CREATE:
         if (pThis)
         {
-            pThis->LoadPngImage(); 
+            pThis->LoadImage("mountains.png");
         }
         break;
     case WM_COMMAND:
@@ -167,9 +172,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
-            if (pThis->m_imageLoaded && pThis->m_pngImage)
+            if (pThis->m_imageLoaded && pThis->m_image)
             {
-                pThis->m_pngImage->Render(hdc, 0, 0);
+                pThis->m_image->Render(hdc, 0, 0);
             }
             else if (!pThis->m_imageLoaded)
             {
@@ -208,15 +213,45 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     return (INT_PTR)FALSE;
 }
 
-void Window::LoadPngImage()
+void Window::LoadImage(const std::string& filename)
 {
-    m_pngImage = std::make_unique<PngImage>();
+    // Get the file extension
+    size_t dotPos = filename.find_last_of('.');
+    std::string extension;
+    if (dotPos != std::string::npos) {
+        extension = filename.substr(dotPos);
+    }
+
+    // Convert to lowercase for case-insensitive comparison
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+    if (extension == ".png") {
+        m_image = std::make_unique<PngImage>();
+    }
+    else if (extension == ".jpg" || extension == ".jpeg") {
+        m_image = std::make_unique<JpegImage>();
+    }
+    else {
+        throw std::runtime_error("Unsupported image format");
+    }
+
     try {
-        m_pngImage->LoadFromFile("sample.png");
+        m_image->LoadFromFile(filename);
         m_imageLoaded = true;
         InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
     }
     catch (const std::exception& e) {
-        MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+        MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
     }
+}
+
+void Window::InitializeGdiPlus()
+{
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+}
+
+void Window::ShutdownGdiPlus()
+{
+    Gdiplus::GdiplusShutdown(m_gdiplusToken);
 }

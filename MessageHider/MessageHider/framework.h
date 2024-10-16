@@ -5,7 +5,7 @@
 #pragma once
 
 #include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // Exclure les en-têtes Windows rarement utilisés
+//#define WIN32_LEAN_AND_MEAN             // Exclure les en-têtes Windows rarement utilisés
 // Fichiers d'en-tête Windows
 #include <windows.h>
 // Fichiers d'en-tête C RunTime
@@ -21,6 +21,10 @@
 #include <stdexcept>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
+
+#include <gdiplus.h>
+#pragma comment(lib, "gdiplus.lib")
 
 #include "zlib/zlib.h"
 #pragma comment(lib, "libz-static.lib")

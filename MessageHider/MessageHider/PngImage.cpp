@@ -1,14 +1,8 @@
 #include "PngImage.h"
 
-#include <sstream>
+PngImage::PngImage() : Image() {}
 
-PngImage::PngImage() : m_hBitmap(NULL), m_width(0), m_height(0) {}
-
-PngImage::~PngImage() {
-    if (m_hBitmap) {
-        DeleteObject(m_hBitmap);
-    }
-}
+PngImage::~PngImage() {}
 
 void PngImage::LoadFromFile(const std::string& filename) {
     PNG_IHDR ihdr;

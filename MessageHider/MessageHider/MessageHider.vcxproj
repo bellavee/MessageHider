@@ -132,6 +132,8 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="JpegImage.h" />
     <ClInclude Include="LSB.h" />
     <ClInclude Include="MatrixEmbedding.h" />
     <ClInclude Include="MessageHider.h" />
@@ -143,6 +145,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="JpegImage.cpp" />
     <ClCompile Include="LSB.cpp" />
     <ClCompile Include="MatrixEmbedding.cpp" />
     <ClCompile Include="MessageHider.cpp" />

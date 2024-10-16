@@ -41,10 +41,10 @@ private:
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
 
-    std::unique_ptr<PngImage> m_pngImage;
+    std::unique_ptr<Image> m_image;
     bool m_imageLoaded;
 
-    void LoadPngImage();
+    void LoadImage(const std::string& filename);
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void Draw(HDC hdc);
@@ -52,4 +52,7 @@ private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+    static ULONG_PTR m_gdiplusToken;
+    static void InitializeGdiPlus();
+    static void ShutdownGdiPlus();
 };
