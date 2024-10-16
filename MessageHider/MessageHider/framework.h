@@ -22,6 +22,8 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
