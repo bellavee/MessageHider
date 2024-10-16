@@ -216,13 +216,14 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
     switch (message) 
     {
-    case WM_CREATE:
-        if (pThis)
-        {
-            // Initialize AppManager or load image if needed
-            manager.LoadImage("mountains.png");  // Assuming this method exists
-        }
-        break;
+    //case WM_CREATE:
+    //    if (pThis)
+    //    {
+
+    //        // Initialize AppManager or load image if needed
+    //        manager.LoadImage("mountains.png");  // Assuming this method exists
+    //    }
+    //    break;
     case WM_COMMAND:
     {
         HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
@@ -246,7 +247,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->DrawTitle(hdc);
             if (manager.HasImageLoaded() && manager.GetPngImage())
             {
-                manager.GetPngImage()->Render(hdc, 0, 0);
+                manager.GetPngImage()->Render(hdc, 0, 0, 400);
             }
         }
         EndPaint(hWnd, &ps);
