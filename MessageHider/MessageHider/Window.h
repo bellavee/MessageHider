@@ -3,8 +3,10 @@
 #include <windows.h>
 #include <CommCtrl.h>
 #include <vector>
-#include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
+#include "resource.h" // Inclure si on utilises des ressources (icï¿½nes, etc.)
 #include "Button.h"
+
+#include "PngImage.h"
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
@@ -40,6 +42,12 @@ private:
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
+
+    std::unique_ptr<PngImage> m_pngImage;
+    bool m_imageLoaded;
+
+    void LoadPngImage();
+
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void Draw(HDC hdc);
 
