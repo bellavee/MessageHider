@@ -14,7 +14,7 @@ Button::Button(
     m_width(width), m_height(height),
     m_hInstance(hInstance),
     m_parent(parent),
-    hWnd(nullptr)
+    m_hWnd(nullptr)
 {
     switch (type)
     {
@@ -53,7 +53,7 @@ Button::~Button() { }
 
 void Button::Create()
 {
-	hWnd = CreateWindow(
+	m_hWnd = CreateWindow(
         L"BUTTON",                                          // nom de la classe de la fenêtre
         m_name,                                             // texte du bouton
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, // styles
@@ -64,11 +64,6 @@ void Button::Create()
         m_hInstance,                                        // instance de l'application
         nullptr                                             // paramètre additionnel
 	);
-
-    // Color
-    HDC hdc = GetDC(hWnd);
-    SetBkColor(hdc, m_color);
-    ReleaseDC(hWnd, hdc);
 }
 
 void Button::OnClick()

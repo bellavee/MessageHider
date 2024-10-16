@@ -159,8 +159,6 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         break;
     case WM_COMMAND:
     {
-        HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
-
         for (Button* button : m_buttons)
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
@@ -170,6 +168,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             }
         }
     }
+    break;
     case WM_PAINT: 
     {
         AppManager& manager = AppManager::GetInstance();
@@ -191,8 +190,25 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         }
 
         EndPaint(hWnd, &ps);
-    } 
+    }
     break;
+    /*case WM_CTLCOLORBTN:
+    {
+        HDC hdcButton = (HDC)wParam;
+        HWND hButton = (HWND)lParam;
+
+        for (Button* button : m_buttons)
+        {
+            if (button->GetId() == (HMENU)GetDlgCtrlID(hButton))
+            {
+                SetBkColor(hdcButton, RED);
+                SetTextColor(hdcButton, RGB(255, 255, 255));
+                HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+                return (INT_PTR)hBrush;
+            }
+        }
+    }
+    break;*/
     case WM_ERASEBKGND:
         return 1;
     case WM_DESTROY:
