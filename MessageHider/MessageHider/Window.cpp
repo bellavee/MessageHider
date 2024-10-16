@@ -160,6 +160,118 @@ void Window::DrawTitle(HDC hdc)
     TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
+void Window::DrawImage(HDC hdc)
+{
+    AppManager& manager = AppManager::GetInstance();
+    if (manager.HasImageLoaded() && manager.GetImage())
+    {
+        // Calculate the position to center the image in the desired area
+        int windowWidth = WINDOW_WIDTH;
+        int imageAreaTop = 150;  // Approximate Y position below the "Load an image" button
+        int imageAreaBottom = 450;  // Approximate Y position above the input field
+        int imageAreaHeight = imageAreaBottom - imageAreaTop;
+
+        const Image* image = manager.GetImage();
+        int originalWidth = image->GetWidth();
+        int originalHeight = image->GetHeight();
+
+        // Calculate scaling based on both width and height constraints
+        int maxWidth = windowWidth - 100;  // 50px padding on each side
+        int maxHeight = imageAreaHeight;
+
+        float scaleWidth = (float)maxWidth / originalWidth;
+        float scaleHeight = (float)maxHeight / originalHeight;
+        float scale = min(scaleWidth, scaleHeight);
+
+        int desiredWidth = (int)(originalWidth * scale);
+        int desiredHeight = (int)(originalHeight * scale);
+
+        // Center the image horizontally and vertically in the image area
+        int x = (windowWidth - desiredWidth) / 2 - 6;
+        int y = imageAreaTop + (imageAreaHeight - desiredHeight) / 2;
+
+        // Draw the image
+        image->Render(hdc, x, y, desiredWidth, desiredHeight);
+    }
+    else
+    {
+        // Draw a placeholder text if no image is loaded
+        SetTextColor(hdc, RGB(128, 128, 128));
+        SetBkMode(hdc, TRANSPARENT);
+        RECT rect = { 0, 150, WINDOW_WIDTH, 500 };  // Adjust these values to match your layout
+        DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
+}
+
+void Window::DrawMessageCapacityText(HDC hdc)
+{
+    if (!m_hNormalFont)
+    {
+        m_hNormalFont = CreateFont
+        (
+            15,                         // Hauteur de la police
+            0,                          // Largeur de la police
+            0,                          // Angle de l'orientation de la police
+            0,                          // Angle d'orientation du texte
+            FALSE,                      // Gras
+            FALSE,                      // Italique
+            FALSE,                      // Souligné
+            FALSE,                      // Barré
+            DEFAULT_CHARSET,            // Jeu de caractères par défaut
+            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
+            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
+            DEFAULT_QUALITY,            // Qualité de rendu par défaut
+            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
+            L"Arial"                    // Nom de la police
+        );
+    }
+
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, WHITE);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* messageCapacity = L"Maximum message capacity : ";
+    TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
+}
+
+void Window::DrawLoadError(HDC hdc)
+{
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, WHITE);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* loadErrorMessage = L"No image loaded";
+    TextOut(hdc, ((WINDOW_WIDTH / 2 - 60)), (WINDOW_WIDTH / 2), loadErrorMessage, wcslen(loadErrorMessage));
+}
+
+void Window::CreateComboBox() const
+{
+    HWND hComboBox = CreateWindow
+    (
+        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
+        L"No filter",                                   // Texte affiché par défaut dans la combo box
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
+        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),   // Position X 
+        450,                                            // Position Y
+        225,                                            // Largeur
+        100,                                            // Hauteur
+        m_hWnd,                                         // Handle de la fenêtre parent
+        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
+        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
+        NULL                                            // Paramètre additionnel
+    );
+
+    if (hComboBox == NULL) 
+    {
+        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+}
+
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static Window* pThis = nullptr;
@@ -197,18 +309,21 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         HDC hdc = BeginPaint(hWnd, &ps);
         if (pThis)
         {
-            pThis->BackgroundColor(hdc, ps, manager.HasDarkTheme() ? BLACK : LIGHT_BLUE);
+            // Set background color based on theme
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : WHITE_BRUSH));
+
             pThis->DrawTitle(hdc);
+            pThis->DrawMessageCapacityText(hdc);
 
             if (manager.HasImageLoaded() && manager.GetImage())
             {
-                manager.GetImage()->Render(hdc, 0, 0, WINDOW_WIDTH);
+                pThis->DrawImage(hdc);
             }
             else
             {
-                SetTextColor(hdc, RGB(255, 255, 255));
-                SetBkMode(hdc, TRANSPARENT);
-                TextOut(hdc, WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2, L"No image loaded", 15);
+                pThis->DrawLoadError(hdc);
             }
         }
         EndPaint(hWnd, &ps);

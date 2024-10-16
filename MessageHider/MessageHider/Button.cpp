@@ -59,15 +59,15 @@ Button::~Button() { }
 void Button::Create()
 {
     m_hWnd = CreateWindow(
-        L"BUTTON",                                          // nom de la classe de la fenêtre
+        L"BUTTON",                                          // nom de la classe de la fenÃªtre
         m_name,                                             // texte du bouton
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, // styles
         m_x, m_y,                                           // position
         m_width, m_height,                                  // dimensions
-        m_parent,                                           // fenêtre parente
+        m_parent,                                           // fenÃªtre parente
         m_id,                                               // identifiant du bouton
         m_hInstance,                                        // instance de l'application
-        nullptr                                             // paramètre additionnel
+        nullptr                                             // paramÃ¨tre additionnel
     );
 }
 
@@ -92,9 +92,7 @@ void Button::OnClick()
         manager.SetCurrentPage(Page::Decode);
         manager.HandleNewPage();
         break;
-    case ButtonType::Load:
-    {
-        // Ouvrir l'explorateur de fichiers
+    case ButtonType::Load: {
         OPENFILENAME ofn;
         wchar_t szFile[260] = { 0 };
 
@@ -112,13 +110,13 @@ void Button::OnClick()
 
         if (GetOpenFileName(&ofn) == TRUE)
         {
-            // Conversion de wchar_t[] (chemin de fichier) en std::string après la sélection du fichier
+            // Convert wchar_t[] (file path) to std::string after file selection
             std::wstring wstr(szFile);
             std::string file(wstr.begin(), wstr.end());
 
             try {
-                manager.LoadImage(file);                    // Charger l'image sélectionnée
-                InvalidateRect(m_parent, NULL, TRUE);       // Forcer le rafraîchissement de la fenêtre
+                manager.LoadImage(file);                    // Load the selected image
+                InvalidateRect(m_parent, NULL, TRUE);       // Force window refresh
             }
             catch (const std::exception& e) {
                 MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
@@ -130,7 +128,7 @@ void Button::OnClick()
         break;
     case ButtonType::Theme:
         manager.SetDarkTheme(!manager.HasDarkTheme());
-        InvalidateRect(m_parent, NULL, TRUE);  // Forcer le rafraîchissement de la fenêtre
+        InvalidateRect(m_parent, NULL, TRUE);  // Forcer le rafraÃ®chissement de la fenÃªtre
         break;
     case ButtonType::EncodeAction:
     {

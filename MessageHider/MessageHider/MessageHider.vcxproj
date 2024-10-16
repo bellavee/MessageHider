@@ -134,6 +134,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="ImageFilter.h" />
     <ClInclude Include="JpegImage.h" />
     <ClInclude Include="LSB.h" />
     <ClInclude Include="MatrixEmbedding.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="AppManager.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="ImageFilter.cpp" />
     <ClCompile Include="JpegImage.cpp" />
     <ClCompile Include="LSB.cpp" />
     <ClCompile Include="MatrixEmbedding.cpp" />

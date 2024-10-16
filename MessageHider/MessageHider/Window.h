@@ -30,7 +30,9 @@ public:
 private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
+
     HFONT m_hTitleFont;
+    HFONT m_hNormalFont;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];
@@ -41,7 +43,10 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
-    void CreateComboBox() const;
+    void DrawImage(HDC hdc);
+    void DrawMessageCapacityText(HDC hdc);
+    void DrawLoadError(HDC hdc);
+
     void CreateButtons();
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
