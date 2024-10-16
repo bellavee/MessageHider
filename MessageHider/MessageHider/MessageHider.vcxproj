@@ -104,11 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Comctl32.lib;libz-static.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)zlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,6 +135,7 @@
     <ClInclude Include="LSB.h" />
     <ClInclude Include="MatrixEmbedding.h" />
     <ClInclude Include="MessageHider.h" />
+    <ClInclude Include="PngImage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Steganography.h" />
     <ClInclude Include="targetver.h" />
@@ -145,6 +148,7 @@
     <ClCompile Include="MessageHider.cpp" />
     <ClCompile Include="Steganography.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="PngImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MessageHider.rc" />

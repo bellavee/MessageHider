@@ -1,8 +1,9 @@
 #include "window.h"
-#include "Button.h"
+
+std::vector<Button*> Window::m_buttons;
 
 Window::Window(HINSTANCE hInst, int nCmdShow)
-    : m_hInstance(hInst), m_hTitleFont(nullptr)
+    : hInstance(hInst), m_imageLoaded(false)
 {
 
     wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
@@ -10,12 +11,15 @@ Window::Window(HINSTANCE hInst, int nCmdShow)
     //LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
     LoadStringW(hInst, IDC_MESSAGEHIDER, m_szWindowClass, MAX_LOADSTRING);
 
-    if (!MyRegisterClass() || !InitInstance(nCmdShow)) m_hWnd = nullptr;
+    if (!MyRegisterClass() || !InitInstance(nCmdShow)) {
+        m_hWnd = nullptr;
+        MessageBoxA(NULL, "Failed to create window", "Error", MB_ICONERROR | MB_OK);
+    }
 }
 
 Window::~Window()
 {
-    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Libérer la police
+    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Libï¿½rer la police
 }
 
 bool Window::Display()  
@@ -47,29 +51,43 @@ void Window::CreateButtons()
 {
     int anchorSpacing = 8;
 
-    int themeWidth = 300;
-    Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, m_hInstance, m_hWnd);
-    themeButton.Create();
+    int btmBtnW = WINDOW_WIDTH / 2;
+    int btnHeight = 40;
+    int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
 
-    int downloadImageButtonWidth = 300;
-    Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, m_hInstance, m_hWnd);
-    downloadImageButton.Create();
+    m_buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
+    //m_buttons.push_back(new Button(ButtonType::DecodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
 
-    int hideMessageButtonWidth = 480;
-    Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, m_hInstance, m_hWnd);
-    hideMessageButton.Create();
+    for (Button* button : m_buttons) button->Create();
 
-    int downloadNewImageWidth = 480;
-    Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, m_hInstance, m_hWnd);
-    downloadNewImageButton.Create();
+    /*int themeWidth = 300;
+    Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, hInstance, m_hWnd);
+    themeButton.Create();*/
 
-    int bottomButtonWidth = WINDOW_WIDTH / 2;
+    /*int downloadImageButtonWidth = 300;
+    Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, hInstance, m_hWnd);
+    downloadImageButton.Create();*/
+
+    /*int hideMessageButtonWidth = 480;
+    Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, hInstance, m_hWnd);
+    hideMessageButton.Create();*/
+
+    /*int downloadNewImageWidth = 480;
+    Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, hInstance, m_hWnd);
+    downloadNewImageButton.Create();*/
+
+    /*int bottomButtonWidth = WINDOW_WIDTH / 2;
     int bottomButtonHeight = 40;
     int bottomButtonPosY = WINDOW_HEIGHT - (bottomButtonHeight * 2);
     Button encodeButton(L"ENCODE", LIGHT_GREY, 0, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)5, m_hInstance, m_hWnd);
     encodeButton.Create();
-    Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, m_hInstance, m_hWnd);
-    decodeButton.Create();
+    Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, hInstance, m_hWnd);
+    decodeButton.Create();*/
 }
 
 ATOM Window::MyRegisterClass() const
@@ -99,8 +117,6 @@ RECT Window::GetCenteredWindow() const
 
     RECT centeredWindow = { xPos, yPos, xPos + WINDOW_WIDTH, yPos + WINDOW_HEIGHT };
     return centeredWindow;
-
-    return RECT();
 }
 
 BOOL Window::InitInstance(int nCmdShow) 
@@ -110,7 +126,7 @@ BOOL Window::InitInstance(int nCmdShow)
     m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle,
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CenteredWindow.left, CenteredWindow.top, WINDOW_WIDTH, WINDOW_HEIGHT,
-        nullptr, nullptr, m_hInstance, nullptr);
+        nullptr, nullptr, hInstance, this);
 
     if (!m_hWnd) return FALSE;
 
@@ -122,26 +138,25 @@ BOOL Window::InitInstance(int nCmdShow)
 
 void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
 {
-    // Définir la couleur d'arrière-plan
-    HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);     // Remplace par la couleur désirée
-    FillRect(hdc, &ps.rcPaint, hBrush);                     // Remplir l'arrière-plan
-    DeleteObject(hBrush);                                   // Libérer la brosse
+    HBRUSH hBrush = CreateSolidBrush(BACKGROUND_COLOR);
+    FillRect(hdc, &ps.rcPaint, hBrush);
+    DeleteObject(hBrush);
 }
 
 void Window::DrawTitle(HDC hdc)
 {
 
-    //if (!m_hTitleFont) // Créer la police seulement si elle n'est pas déjà créée
+    //if (!m_hTitleFont) // Crï¿½er la police seulement si elle n'est pas dï¿½jï¿½ crï¿½ï¿½e
     //{
     //    m_hTitleFont = CreateFont(
     //        50, // Hauteur de la police
     //        0,  // Largeur de la police
     //        0,  // Angle de rotation
     //        0,  // Angle d'orientation
-    //        FW_BOLD, // Épaisseur de la police
+    //        FW_BOLD, // ï¿½paisseur de la police
     //        FALSE, // Italique
-    //        FALSE, // Souligné
-    //        FALSE, // Barré
+    //        FALSE, // Soulignï¿½
+    //        FALSE, // Barrï¿½
     //        DEFAULT_CHARSET,
     //        OUT_DEFAULT_PRECIS,
     //        CLIP_DEFAULT_PRECIS,
@@ -160,37 +175,53 @@ void Window::DrawTitle(HDC hdc)
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
+    static Window* pThis = nullptr;
+
+    if (message == WM_NCCREATE)
+    {
+        pThis = static_cast<Window*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+    else
+    {
+        pThis = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
     switch (message) 
     {
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        default:
-            // Gérer action
-        case 1: // themeButton
-            // Gérer l'action de cilc
-            break;
-        case 2: // downloadImageButton
-            // Gérer l'action de clic 
-            break;
-        case 3: // hideMessageButton
-            // Gérer l'action de clic 
-            break;
-        case 4: // downloadNewImageButton
-            //
-            break;
-        }
+    case WM_CREATE:
+        if (pThis) pThis->LoadPngImage(); 
         break;
+    case WM_COMMAND:
+    {
+        HMENU commandId = reinterpret_cast<HMENU>(LOWORD(wParam));
+
+        for (Button* button : m_buttons)
+        {
+            if (button->GetId() == (HMENU)LOWORD(wParam)) button->OnClick();
+        }
+    }
     case WM_PAINT: 
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-
-        BackgroundColor(hdc, ps);
         //DrawTitle(hdc);
+        if (pThis)
+        {
+            pThis->BackgroundColor(hdc, ps);
+            if (pThis->m_imageLoaded && pThis->m_pngImage)
+            {
+                pThis->m_pngImage->Render(hdc, 0, 0);
+            }
+            else if (!pThis->m_imageLoaded)
+            {
+                TextOutA(hdc, 10, 10, "Loading image...", 15);
+            }
+        }
 
         EndPaint(hWnd, &ps);
-    } break;
+    } 
+    break;
     case WM_ERASEBKGND:
         return 1;
     case WM_DESTROY:
@@ -204,12 +235,12 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     UNREFERENCED_PARAMETER(lParam);
-    switch (message) 
+    switch (message)
     {
     case WM_INITDIALOG:
         return (INT_PTR)TRUE;
     case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) 
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
@@ -217,4 +248,17 @@ INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void Window::LoadPngImage()
+{
+    m_pngImage = std::make_unique<PngImage>();
+    try {
+        m_pngImage->LoadFromFile("sample.png");
+        m_imageLoaded = true;
+        InvalidateRect(m_hWnd, NULL, TRUE);  // Force a redraw
+    }
+    catch (const std::exception& e) {
+        MessageBoxA(NULL, e.what(), "Error loading PNG", MB_OK | MB_ICONERROR);
+    }
 }

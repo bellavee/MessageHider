@@ -2,8 +2,11 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
-//#include <wingdi.h>
-#include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
+#include <vector>
+#include "resource.h" // Inclure si on utilises des ressources (icï¿½nes, etc.)
+#include "Button.h"
+
+#include "PngImage.h"
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
@@ -38,6 +41,12 @@ private:
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
+
+    std::unique_ptr<PngImage> m_pngImage;
+    bool m_imageLoaded;
+
+    void LoadPngImage();
+
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void DrawTitle(HDC hdc);
     void CreateButtons();
@@ -46,4 +55,5 @@ private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+    static std::vector<Button*> m_buttons;
 };
