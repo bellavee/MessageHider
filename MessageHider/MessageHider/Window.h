@@ -20,8 +20,6 @@ constexpr COLORREF RED = RGB(237, 54, 91);
 constexpr COLORREF GREEN = RGB(76, 175, 80);
 constexpr COLORREF BLUE = RGB(0, 140, 186);
 
-#define IDC_SLIDER 101
-
 class Window
 {
 public:
