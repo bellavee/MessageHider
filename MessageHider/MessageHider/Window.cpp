@@ -10,42 +10,41 @@ std::vector<Button*> Window::m_buttons;
 
 Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
 {
-
-    wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
-
-    //LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
+    wcscpy_s(m_szTitle, WINDOW_TITLE);
     LoadStringW(hInst, IDC_MESSAGEHIDER, m_szWindowClass, MAX_LOADSTRING);
 
-    if (!MyRegisterClass() || !InitInstance(nCmdShow)) {
+    if (!MyRegisterClass() || !InitInstance(nCmdShow)) 
+    {
         m_hWnd = nullptr;
-        MessageBoxA(NULL, "Failed to create window", "Error", MB_ICONERROR | MB_OK);
+        MessageBoxA(nullptr, "Failed to create window", "Error", MB_ICONERROR | MB_OK);
     }
 }
 
 Window::~Window()
 {
-    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Lib�rer la police
+    if (m_hTitleFont) DeleteObject(m_hTitleFont);
 }
 
-bool Window::Display()  
+bool Window::Display()
 {
+    CreateComboBox();
     CreateButtons();
     CreateInputField();
-    
+
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
 
     return true;
 }
 
-void Window::ShowMessageLoop() const 
+void Window::ShowMessageLoop() const
 {
     MSG msg;
     HACCEL hAccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_MESSAGEHIDER));
 
-    while (GetMessage(&msg, nullptr, 0, 0)) 
+    while (GetMessage(&msg, nullptr, 0, 0))
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -55,8 +54,6 @@ void Window::ShowMessageLoop() const
 
 void Window::CreateButtons()
 {
-    int anchorSpacing = 8;
-
     int btmBtnW = WINDOW_WIDTH / 2;
     int btnHeight = 40;
     int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
@@ -67,23 +64,21 @@ void Window::CreateButtons()
     m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, m_hInstance, m_hWnd));
     m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, m_hInstance, m_hWnd));
     m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, m_hInstance, m_hWnd));
-    //m_buttons.push_back(new Button(ButtonType::DecodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
 
     for (Button* button : m_buttons) button->Create();
 }
 
 void Window::CreateInputField()
 {
-    int anchorSpacing = 8;
-
-    m_hInputField = CreateWindowEx(
+    m_hInputField = CreateWindowEx
+    (
         WS_EX_CLIENTEDGE,
         L"EDIT",
         L"Enter your secret message...",
         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
         (((WINDOW_WIDTH - 480) / 2) - anchorSpacing),
         540,
-        480,   
+        480,
         150,
         m_hWnd,
         nullptr,
@@ -91,7 +86,6 @@ void Window::CreateInputField()
         nullptr
     );
 }
-
 
 ATOM Window::MyRegisterClass() const
 {
@@ -122,7 +116,7 @@ RECT Window::GetCenteredWindow() const
     return centeredWindow;
 }
 
-BOOL Window::InitInstance(int nCmdShow) 
+BOOL Window::InitInstance(int nCmdShow)
 {
     RECT CenteredWindow = GetCenteredWindow();
 
@@ -148,38 +142,64 @@ void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
 
 void Window::DrawTitle(HDC hdc)
 {
-    if (!m_hTitleFont) // Créer la police seulement si elle n'est pas déjà créée
+    if (!m_hTitleFont)
     {
-        m_hTitleFont = CreateFont(
-            50, // Hauteur de la police
-            0,  // Largeur de la police
-            0,  // Angle de rotation
-            0,  // Angle d'orientation
-            FW_BOLD, // Épaisseur de la police
-            FALSE, // Italique
-            FALSE, // Souligné
-            FALSE, // Barré
-            DEFAULT_CHARSET,
-            OUT_DEFAULT_PRECIS,
-            CLIP_DEFAULT_PRECIS,
-            DEFAULT_QUALITY,
-            0,
-            L"Arial" // Choisissez votre police ici
+        m_hTitleFont = CreateFont
+        (
+            50,                         // Hauteur de la police
+            0,                          // Largeur de la police
+            0,                          // Angle de l'orientation de la police
+            0,                          // Angle d'orientation du texte
+            FW_BOLD,                    // Gras
+            FALSE,                      // Italique
+            FALSE,                      // Souligné
+            FALSE,                      // Barré
+            DEFAULT_CHARSET,            // Jeu de caractères par défaut
+            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
+            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
+            DEFAULT_QUALITY,            // Qualité de rendu par défaut
+            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
+            L"Arial"                    // Nom de la police
         );
     }
 
-    // Sélectionnez la police pour le contexte de dessin
     SelectObject(hdc, m_hTitleFont);
-
     SetTextColor(hdc, TEXT_COLOR);
-    SetBkMode(hdc, TRANSPARENT); // Pour un fond transparent
+    SetBkMode(hdc, TRANSPARENT);
 
-    const WCHAR* title = L"MESSAGE HIDER"; // Utilisez votre titre ici
-    TextOut(hdc, 20, 20, title, wcslen(title)); // Positionnez le titre en haut à gauche
+    const WCHAR* title = L"MESSAGE HIDER";
+    TextOut(hdc, 20, 20, title, wcslen(title));
 }
 
+void Window::CreateComboBox() const
+{
+    HWND hComboBox = CreateWindow
+    (
+        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
+        L"No filter",                                   // Texte affiché par défaut dans la combo box
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
+        (((WINDOW_WIDTH - 450) / 2) - anchorSpacing),   // Position X 
+        450,                                            // Position Y
+        225,                                            // Largeur
+        100,                                            // Hauteur
+        m_hWnd,                                         // Handle de la fenêtre parent
+        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
+        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
+        NULL                                            // Paramètre additionnel
+    );
 
-LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
+    if (hComboBox == NULL) 
+    {
+        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
+    SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+}
+
+LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static Window* pThis = nullptr;
     if (message == WM_NCCREATE)
@@ -245,7 +265,8 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     return 0;
 }
 
-INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+{
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
     {
