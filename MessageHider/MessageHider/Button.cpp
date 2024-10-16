@@ -16,6 +16,8 @@ Button::Button(
     m_parent(parent),
     m_hWnd(nullptr)
 {
+    m_pageToDisplay = Page::All;
+
     switch (type)
     {
     case ButtonType::EncodePage:
@@ -33,6 +35,7 @@ Button::Button(
     case ButtonType::Download:
         m_name = L"Download the new image";
         m_id = (HMENU)4;
+        m_pageToDisplay = Page::Encode;
         break;
     case ButtonType::Theme:
         m_name = L"T";
@@ -41,10 +44,12 @@ Button::Button(
     case ButtonType::EncodeAction:
         m_name = L"Hide the message";
         m_id = (HMENU)6;
+        m_pageToDisplay = Page::Encode;
         break;
     case ButtonType::DecodeAction:
         m_name = L"Extract the message";
         m_id = (HMENU)7;
+        m_pageToDisplay = Page::Decode;
         break;
     }
 }
@@ -66,6 +71,11 @@ void Button::Create()
     );
 }
 
+void Button::Destroy()
+{
+    DestroyWindow(m_hWnd);
+}
+
 void Button::OnClick()
 {
     AppManager& manager = AppManager::GetInstance();
@@ -73,8 +83,14 @@ void Button::OnClick()
     switch (m_type)
     {
     case ButtonType::EncodePage:
+        if (manager.GetCurrentPage() == Page::Encode) return;
+        manager.SetCurrentPage(Page::Encode);
+        manager.HandleNewPage();
         break;
     case ButtonType::DecodePage:
+        if (manager.GetCurrentPage() == Page::Decode) return;
+        manager.SetCurrentPage(Page::Decode);
+        manager.HandleNewPage();
         break;
     case ButtonType::Load: {
         OPENFILENAME ofn;

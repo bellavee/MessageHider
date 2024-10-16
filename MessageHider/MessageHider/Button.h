@@ -31,9 +31,11 @@ public:
     virtual ~Button();
 
     void Create();
+    void Destroy();
     virtual void OnClick();
 
     HMENU GetId() const { return m_id; }
+    Page GetPage() const { return m_pageToDisplay; }
 
 private:
 
@@ -46,4 +48,5 @@ private:
     HINSTANCE m_hInstance;
     HWND m_parent; // parent
     ButtonType m_type;
+    Page m_pageToDisplay;
 };
