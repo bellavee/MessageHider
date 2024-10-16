@@ -42,8 +42,9 @@ private:
     ATOM MyRegisterClass() const;
     RECT GetCenteredWindow() const;
     BOOL InitInstance(int nCmdShow);
-
-    void LoadPngImage();
+std::unique_ptr<Image> m_image;
+    bool m_imageLoaded;
+    void LoadImage(const std::string& filename);
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps);
     void DrawTitle(HDC hdc);
@@ -54,5 +55,8 @@ private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+    static ULONG_PTR m_gdiplusToken;
+    static void InitializeGdiPlus();
+    static void ShutdownGdiPlus();
     static std::vector<Button*> m_buttons;
 };
