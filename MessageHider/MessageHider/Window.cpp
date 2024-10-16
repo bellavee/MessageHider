@@ -2,9 +2,12 @@
 
 std::vector<Button*> Window::m_buttons;
 
-Window::Window(HINSTANCE hInst, int nCmdShow) : hInstance(hInst)
+Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
 {
-    LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
+
+    wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
+
+    //LoadStringW(hInst, IDS_APP_TITLE, m_szTitle, MAX_LOADSTRING);
     LoadStringW(hInst, IDC_MESSAGEHIDER, m_szWindowClass, MAX_LOADSTRING);
 
     if (!MyRegisterClass() || !InitInstance(nCmdShow)) {
@@ -15,11 +18,13 @@ Window::Window(HINSTANCE hInst, int nCmdShow) : hInstance(hInst)
 
 Window::~Window()
 {
+    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Lib�rer la police
 }
 
 bool Window::Display()  
 {
     CreateButtons();
+    CreateInputField();
     
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
@@ -30,7 +35,7 @@ bool Window::Display()
 void Window::ShowMessageLoop() const 
 {
     MSG msg;
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MESSAGEHIDER));
+    HACCEL hAccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDC_MESSAGEHIDER));
 
     while (GetMessage(&msg, nullptr, 0, 0)) 
     {
@@ -50,40 +55,37 @@ void Window::CreateButtons()
     int btnHeight = 40;
     int btmBtnPosY = WINDOW_HEIGHT - (btnHeight * 2);
 
-    m_buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, hInstance, m_hWnd));
-    m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Theme, RED, (465 + anchorSpacing), 25, 35, 35, m_hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - anchorSpacing), 100, 300, btnHeight, m_hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 750, 480, btnHeight, m_hInstance, m_hWnd));
+    m_buttons.push_back(new Button(ButtonType::EncodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, m_hInstance, m_hWnd));
     //m_buttons.push_back(new Button(ButtonType::DecodeAction, GREEN, (((WINDOW_WIDTH - 480) / 2) - anchorSpacing), 700, 480, btnHeight, hInstance, m_hWnd));
 
     for (Button* button : m_buttons) button->Create();
-
-    /*int themeWidth = 300;
-    Button themeButton(L"T", RED, (465 + anchorSpacing), 25, 35, 35, (HMENU)1, hInstance, m_hWnd);
-    themeButton.Create();*/
-
-    /*int downloadImageButtonWidth = 300;
-    Button downloadImageButton(L"Download an image", RED, (((WINDOW_WIDTH - downloadImageButtonWidth) / 2) - anchorSpacing), 100, downloadImageButtonWidth, 40, (HMENU)2, hInstance, m_hWnd);
-    downloadImageButton.Create();*/
-
-    /*int hideMessageButtonWidth = 480;
-    Button hideMessageButton(L"Hide the message", GREEN, (((WINDOW_WIDTH - hideMessageButtonWidth) / 2) - anchorSpacing), 700, hideMessageButtonWidth, 40, (HMENU)3, hInstance, m_hWnd);
-    hideMessageButton.Create();*/
-
-    /*int downloadNewImageWidth = 480;
-    Button downloadNewImageButton(L"Download the new image", BLUE, (((WINDOW_WIDTH - downloadNewImageWidth) / 2) - anchorSpacing), 750, downloadNewImageWidth, 40, (HMENU)4, hInstance, m_hWnd);
-    downloadNewImageButton.Create();*/
-
-    /*int bottomButtonWidth = WINDOW_WIDTH / 2;
-    int bottomButtonHeight = 40;
-    int bottomButtonPosY = WINDOW_HEIGHT - (bottomButtonHeight * 2);
-    Button encodeButton(L"ENCODE", LIGHT_GREY, 0, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)5, hInstance, m_hWnd);
-    encodeButton.Create();
-    Button decodeButton(L"DECODE", DARK_GREY, bottomButtonWidth, bottomButtonPosY, bottomButtonWidth, bottomButtonHeight, (HMENU)6, hInstance, m_hWnd);
-    decodeButton.Create();*/
 }
+
+void Window::CreateInputField()
+{
+    int anchorSpacing = 8;
+
+    m_hInputField = CreateWindowEx(
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L"Enter your secret message...",
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        (((WINDOW_WIDTH - 480) / 2) - anchorSpacing),
+        540,
+        480,   
+        150,
+        m_hWnd,
+        nullptr,
+        m_hInstance,
+        nullptr
+    );
+}
+
 
 ATOM Window::MyRegisterClass() const
 {
@@ -92,8 +94,8 @@ ATOM Window::MyRegisterClass() const
     wcex.lpfnWndProc = WndProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+    wcex.hInstance = m_hInstance;
+    wcex.hIcon = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
@@ -121,7 +123,7 @@ BOOL Window::InitInstance(int nCmdShow)
     m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle,
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CenteredWindow.left, CenteredWindow.top, WINDOW_WIDTH, WINDOW_HEIGHT,
-        nullptr, nullptr, hInstance, this);
+        nullptr, nullptr, m_hInstance, this);
 
     if (!m_hWnd) return FALSE;
 
@@ -137,6 +139,39 @@ void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
     FillRect(hdc, &ps.rcPaint, hBrush);
     DeleteObject(hBrush);
 }
+
+void Window::DrawTitle(HDC hdc)
+{
+    if (!m_hTitleFont) // Créer la police seulement si elle n'est pas déjà créée
+    {
+        m_hTitleFont = CreateFont(
+            50, // Hauteur de la police
+            0,  // Largeur de la police
+            0,  // Angle de rotation
+            0,  // Angle d'orientation
+            FW_BOLD, // Épaisseur de la police
+            FALSE, // Italique
+            FALSE, // Souligné
+            FALSE, // Barré
+            DEFAULT_CHARSET,
+            OUT_DEFAULT_PRECIS,
+            CLIP_DEFAULT_PRECIS,
+            DEFAULT_QUALITY,
+            0,
+            L"Arial" // Choisissez votre police ici
+        );
+    }
+
+    // Sélectionnez la police pour le contexte de dessin
+    SelectObject(hdc, m_hTitleFont);
+
+    SetTextColor(hdc, TEXT_COLOR);
+    SetBkMode(hdc, TRANSPARENT); // Pour un fond transparent
+
+    const WCHAR* title = L"MESSAGE HIDER"; // Utilisez votre titre ici
+    TextOut(hdc, 20, 20, title, wcslen(title)); // Positionnez le titre en haut à gauche
+}
+
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
@@ -170,7 +205,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             }
         }
     }
-    case WM_PAINT: 
+    case WM_PAINT:
     {
         AppManager& manager = AppManager::GetInstance();
 
@@ -180,18 +215,15 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
+            pThis->DrawTitle(hdc); // Ajoutez cette ligne pour dessiner le titre
             if (manager.HasImageLoaded() && manager.GetPngImage())
             {
                 manager.GetPngImage()->Render(hdc, 0, 0);
             }
-            /*else if (!manager.HasImageLoaded())
-            {
-                TextOutA(hdc, 10, 10, "Loading image...", 15);
-            }*/
         }
 
         EndPaint(hWnd, &ps);
-    } 
+    }
     break;
     case WM_ERASEBKGND:
         return 1;

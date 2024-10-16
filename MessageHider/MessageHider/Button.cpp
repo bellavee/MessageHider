@@ -39,11 +39,11 @@ Button::Button(
         m_id = (HMENU)5;
         break;
     case ButtonType::EncodeAction:
-        m_name = L"OK";
+        m_name = L"Hide the message";
         m_id = (HMENU)6;
         break;
     case ButtonType::DecodeAction:
-        m_name = L"OK";
+        m_name = L"Extract the message";
         m_id = (HMENU)7;
         break;
     }
