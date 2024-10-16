@@ -2,7 +2,7 @@
 
 std::vector<Button*> Window::m_buttons;
 
-Window::Window(HINSTANCE hInst, int nCmdShow) : hInstance(hInst)
+Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
 {
 
     wcscpy_s(m_szTitle, WINDOW_TITLE); // Utilisez le titre fixe
@@ -18,12 +18,13 @@ Window::Window(HINSTANCE hInst, int nCmdShow) : hInstance(hInst)
 
 Window::~Window()
 {
-    //if (m_hTitleFont) DeleteObject(m_hTitleFont); // Lib�rer la police
+    if (m_hTitleFont) DeleteObject(m_hTitleFont); // Lib�rer la police
 }
 
 bool Window::Display()  
 {
     CreateButtons();
+    CreateInputField();
     
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
@@ -67,13 +68,24 @@ void Window::CreateButtons()
 
 void Window::CreateInputField()
 {
-    m_hInputField = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-        (WINDOW_WIDTH / 20), (WINDOW_HEIGHT / 10), (WINDOW_WIDTH - 40), 25,
-        m_hWnd, nullptr, m_hInstance, nullptr);
+    int anchorSpacing = 8;
 
-    for (Button* button : m_buttons) button->Create();
+    m_hInputField = CreateWindowEx(
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L"Enter your secret message...",
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        (((WINDOW_WIDTH - 480) / 2) - anchorSpacing),
+        540,
+        480,   
+        150,
+        m_hWnd,
+        nullptr,
+        m_hInstance,
+        nullptr
+    );
 }
+
 
 ATOM Window::MyRegisterClass() const
 {
@@ -130,33 +142,36 @@ void Window::BackgroundColor(HDC hdc, PAINTSTRUCT ps)
 
 void Window::DrawTitle(HDC hdc)
 {
+    if (!m_hTitleFont) // Créer la police seulement si elle n'est pas déjà créée
+    {
+        m_hTitleFont = CreateFont(
+            50, // Hauteur de la police
+            0,  // Largeur de la police
+            0,  // Angle de rotation
+            0,  // Angle d'orientation
+            FW_BOLD, // Épaisseur de la police
+            FALSE, // Italique
+            FALSE, // Souligné
+            FALSE, // Barré
+            DEFAULT_CHARSET,
+            OUT_DEFAULT_PRECIS,
+            CLIP_DEFAULT_PRECIS,
+            DEFAULT_QUALITY,
+            0,
+            L"Arial" // Choisissez votre police ici
+        );
+    }
 
-    //if (!m_hTitleFont) // Cr�er la police seulement si elle n'est pas d�j� cr��e
-    //{
-    //    m_hTitleFont = CreateFont(
-    //        50, // Hauteur de la police
-    //        0,  // Largeur de la police
-    //        0,  // Angle de rotation
-    //        0,  // Angle d'orientation
-    //        FW_BOLD, // �paisseur de la police
-    //        FALSE, // Italique
-    //        FALSE, // Soulign�
-    //        FALSE, // Barr�
-    //        DEFAULT_CHARSET,
-    //        OUT_DEFAULT_PRECIS,
-    //        CLIP_DEFAULT_PRECIS,
-    //        DEFAULT_QUALITY,
-    //        DEFAULT_FQUALITY,
-    //        L"Arial"); // Choisissez votre police ici
-    //}
+    // Sélectionnez la police pour le contexte de dessin
+    SelectObject(hdc, m_hTitleFont);
 
     SetTextColor(hdc, TEXT_COLOR);
     SetBkMode(hdc, TRANSPARENT); // Pour un fond transparent
 
-    //const WCHAR* title = WINDOW_TITLE; // Utilisez votre titre ici
-    //TextOutW(hdc, (WINDOW_HEIGHT / 20), (WINDOW_WIDTH / 15), title, wcslen(title));
-    TextOut(hdc, (WINDOW_WIDTH / 20), (WINDOW_HEIGHT / 15), m_szTitle, wcslen(m_szTitle));
+    const WCHAR* title = L"MESSAGE HIDER"; // Utilisez votre titre ici
+    TextOut(hdc, 20, 20, title, wcslen(title)); // Positionnez le titre en haut à gauche
 }
+
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {
@@ -190,30 +205,25 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             }
         }
     }
-    case WM_PAINT: 
+    case WM_PAINT:
     {
         AppManager& manager = AppManager::GetInstance();
 
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
-        //DrawTitle(hdc);
-
         if (pThis)
         {
             pThis->BackgroundColor(hdc, ps);
+            pThis->DrawTitle(hdc); // Ajoutez cette ligne pour dessiner le titre
             if (manager.HasImageLoaded() && manager.GetPngImage())
             {
                 manager.GetPngImage()->Render(hdc, 0, 0);
             }
-            /*else if (!manager.HasImageLoaded())
-            {
-                TextOutA(hdc, 10, 10, "Loading image...", 15);
-            }*/
         }
 
         EndPaint(hWnd, &ps);
-    } 
+    }
     break;
     case WM_ERASEBKGND:
         return 1;
