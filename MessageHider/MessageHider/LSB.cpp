@@ -15,7 +15,6 @@ bool LSB::Encode(std::string message)
 	}
 
 	Reset();
-
 	return true;
 }
 

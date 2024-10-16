@@ -2,9 +2,11 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
+#include <vector>
+#include "resource.h" // Inclure si on utilises des ressources (ic�nes, etc.)
+#include "Button.h"
 
 #include "PngImage.h"
-#include "resource.h" // Inclure si on utilises des ressources (icônes, etc.)
 
 constexpr auto MAX_LOADSTRING = 100;
 constexpr int WINDOW_WIDTH = 540;
@@ -52,4 +54,5 @@ private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+    static std::vector<Button*> m_buttons;
 };

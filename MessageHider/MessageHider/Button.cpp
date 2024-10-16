@@ -1,13 +1,55 @@
 #include "Button.h"
 
-Button::Button(const wchar_t* name, COLORREF color, int x, int y, int width, int height, HMENU id, HINSTANCE hInstance, HWND parent)
-	: m_name(name), m_color(color), m_x(x), m_y(y), m_width(width), m_height(height), m_id(id), m_hInstance(hInstance), m_parent(parent), hWnd(nullptr)
+Button::Button(
+    ButtonType type,
+    COLORREF color,
+    int x, int y,
+    int width, int height,
+    HINSTANCE hInstance,
+    HWND parent)
+    :
+    m_type(type),
+    m_color(color),
+    m_x(x), m_y(y),
+    m_width(width), m_height(height),
+    m_hInstance(hInstance),
+    m_parent(parent),
+    hWnd(nullptr)
 {
+    switch (type)
+    {
+    case ButtonType::EncodePage:
+        m_name = L"ENCODE";
+        m_id = (HMENU)1;
+        break;
+    case ButtonType::DecodePage:
+        m_name = L"DECODE";
+        m_id = (HMENU)2;
+        break;
+    case ButtonType::Load:
+        m_name = L"Load an image";
+        m_id = (HMENU)3;
+        break;
+    case ButtonType::Download:
+        m_name = L"Download the new image";
+        m_id = (HMENU)4;
+        break;
+    case ButtonType::Theme:
+        m_name = L"T";
+        m_id = (HMENU)5;
+        break;
+    case ButtonType::EncodeAction:
+        m_name = L"OK";
+        m_id = (HMENU)6;
+        break;
+    case ButtonType::DecodeAction:
+        m_name = L"OK";
+        m_id = (HMENU)7;
+        break;
+    }
 }
 
-Button::~Button()
-{
-}
+Button::~Button() { }
 
 void Button::Create()
 {
@@ -31,10 +73,38 @@ void Button::Create()
 
 void Button::OnClick()
 {
-    //On click...
+    AppManager& manager = AppManager::GetInstance();
+
+    switch (m_type)
+    {
+    case ButtonType::EncodePage:
+        break;
+    case ButtonType::DecodePage:
+        break;
+    case ButtonType::Load:
+        break;
+    case ButtonType::Download:
+        break;
+    case ButtonType::Theme:
+        break;
+    case ButtonType::EncodeAction:
+    {
+        std::string input = manager.GetUserInput();
+        if (input.empty()) break;
+        LSB lsb;
+        lsb.Encode(input);
+    }
+        break;
+    case ButtonType::DecodeAction:
+    {
+        LSB lsb;
+        std::string result = lsb.Decode();
+    }
+        break;
+    }
 }
 
 HWND Button::GetHandle() const
 {
-	return HWND();
+    return hWnd;
 }
