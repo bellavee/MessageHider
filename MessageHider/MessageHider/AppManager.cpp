@@ -35,6 +35,11 @@ std::string AppManager::GetUserInput()
     return m_userInput;
 }
 
+void AppManager::UpdateElement() const
+{
+    SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
+}
+
 void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
 {
     m_wHWND = hwnd;
@@ -72,17 +77,19 @@ void AppManager::CreateEncodeElements()
     (
         WS_EX_CLIENTEDGE,
         L"EDIT",
-        L"Enter your secret message...",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        NULL,
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN | WS_TABSTOP,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,
         150,
         m_wHWND,
-        nullptr,
+        NULL,
         m_wInstance,
-        nullptr
+        NULL
     );
+
+    //SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
 
     // Dropdown
     m_dropdown = CreateWindow
@@ -137,7 +144,27 @@ void AppManager::CreateEncodeElements()
     SendMessage(m_slider, TBM_SETPOS, TRUE, 50);    
 }
 
-void AppManager::DrawEncodeElements()
+void AppManager::CreateDecodeElements()
+{
+    // Input field
+    m_readOnlyInputField = CreateWindowEx
+    (
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L" ",
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+        (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
+        540,
+        480,
+        150,
+        m_wHWND,
+        nullptr,
+        m_wInstance,
+        nullptr
+    );
+}
+
+void AppManager::DrawEncodeElements() const
 {
     SelectObject(m_wHDC, m_normalFont);
     SetBkMode(m_wHDC, TRANSPARENT);
@@ -183,8 +210,11 @@ void AppManager::HandleNewPage()
     {
     case Page::Encode:
         CreateEncodeElements();
+        DestroyWindow(m_readOnlyInputField);
+        InvalidateRect(m_wHWND, NULL, TRUE);
         break;
     case Page::Decode:
+        CreateDecodeElements();
         DestroyWindow(m_inputField);
         DestroyWindow(m_dropdown);
         DestroyWindow(m_slider);

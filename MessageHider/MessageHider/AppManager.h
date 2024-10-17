@@ -27,14 +27,17 @@ public:
 
     std::string GetUserInput();
 
+    void UpdateElement() const;
+
     void CreateElements(HWND hwnd, HINSTANCE instance);
     void CreateEncodeElements();
-    void DrawEncodeElements();
+    void CreateDecodeElements();
+    void DrawEncodeElements() const;
     void HandleNewPage();
     void ShowErrorPopup(const WCHAR* error);
 
     // Getters
-    Image* GetImage() { return m_image.get(); }
+    Image* GetImage() const { return m_image.get(); }
     bool HasImageLoaded() const { return m_imageLoaded; }
     bool HasDarkTheme() const { return m_darkTheme; }
     std::string GetDecodedMessage() const { return m_decodedMessage; }
@@ -77,6 +80,7 @@ private:
     HWND m_inputField;
     HWND m_dropdown;
     HWND m_slider;
+    HWND m_readOnlyInputField;
 
     std::unique_ptr<ImageFilter> m_currentFilter;
     int m_currentFilterValue;
