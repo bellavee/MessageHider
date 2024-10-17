@@ -175,8 +175,8 @@ void AppManager::DrawEncodeElements() const
 
     if (m_imageLoaded)
     {
-        size_t size = GetImage()->GetPixelData().size();
-        capacityText = (std::wstringstream() << size).str();
+        size_t size = (GetImage()->GetPixelData().size() / 8) - 1;
+        capacityText = (std::wstringstream() << size).str() + L" words";
     }
 
     TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 112), ((WINDOW_HEIGHT / 2) + 3), capacityText.c_str(), capacityText.length());
