@@ -235,12 +235,73 @@ void AppManager::ShowErrorPopup(const WCHAR* error) const
 {
     MessageBox(
         NULL,
-        error,                  // Le message d'erreur à afficher
-        L"ERROR",              // Le titre de la boîte de dialogue
-        MB_ICONERROR | MB_OK    // Icône d'erreur et bouton "OK"
+        error,                  // Le message d'erreur ï¿½ afficher
+        L"ERROR",              // Le titre de la boï¿½te de dialogue
+        MB_ICONERROR | MB_OK    // Icï¿½ne d'erreur et bouton "OK"
     );
 }
 
+void AppManager::HelpPopup()
+{
+    const WCHAR* helpMessage =
+        L"===========================\n"
+        L"      Keyboard Shortcuts      \n"
+        L"===========================\n"
+        L"CTRL + E  -> Encode tab\n"
+        L"CTRL + D  -> Decode tab\n"
+        L"CTRL + L  -> Load image\n"
+        L"CTRL + T  -> Change theme\n"
+        L"===========================\n"
+        L"If you encounter errors,\n"
+        L"check the displayed error messages.\n"
+        L"===========================\n";
+
+    MessageBox(
+        NULL,
+        helpMessage,
+        L"Help",
+        MB_ICONINFORMATION | MB_OK
+    );
+}
+
+void AppManager::Load()
+{
+    OPENFILENAME ofn;
+    wchar_t szFile[260] = { 0 };
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = m_wHWND;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = L"Images\0*.png;*.jpg;*.bmp\0All Files\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        // Convert wchar_t[] (file path) to std::string after file selection
+        std::wstring wstr(szFile);
+        std::string file(wstr.begin(), wstr.end());
+
+        try {
+            LoadImage(file);                    // Load the selected image
+            InvalidateRect(m_wHWND, NULL, TRUE);       // Force window refresh
+        }
+        catch (const std::exception& e) {
+            MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
+        }
+    }
+
+}
+
+void AppManager::ChangeTheme()
+{
+    SetDarkTheme(!HasDarkTheme());
+    InvalidateRect(m_wHWND, NULL, TRUE);  // Forcer le rafraï¿½chissement de la fenï¿½tre
 void AppManager::Loading(bool loading)
 {
     HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);

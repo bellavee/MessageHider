@@ -35,6 +35,9 @@ public:
     void DrawEncodeElements() const;
     void HandleNewPage();
     void ShowErrorPopup(const WCHAR* error) const;
+    void HelpPopup();
+    void Load();
+    void ChangeTheme();
     void Loading(bool loading);
 
     // Getters

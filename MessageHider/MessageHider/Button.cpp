@@ -39,6 +39,7 @@ Button::Button(
         break;
     case ButtonType::Help:
         m_name = L"?";
+        m_id = (HMENU)8;
         break;
     case ButtonType::Theme:
         m_name = L"T";
@@ -90,47 +91,16 @@ void Button::OnClick()
         manager.SetCurrentPage(Page::Decode);
         manager.HandleNewPage();
         break;
-    case ButtonType::Load: {
-        OPENFILENAME ofn;
-        wchar_t szFile[260] = { 0 };
-
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = m_parent;
-        ofn.lpstrFile = szFile;
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = L"Images\0*.png;*.jpg;*.bmp\0All Files\0*.*\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        manager.Loading(true);
-
-        if (GetOpenFileName(&ofn) == TRUE)
-        {
-            // Convert wchar_t[] (file path) to std::string after file selection
-            std::wstring wstr(szFile);
-            std::string file(wstr.begin(), wstr.end());
-
-            try {
-                manager.Loading(true);
-                manager.LoadImage(file);                    // Load the selected image
-                manager.Loading(false);
-                InvalidateRect(m_parent, NULL, TRUE);       // Force window refresh
-            }
-            catch (const std::exception& e) {
-                manager.ShowErrorPopup(L"Error loading image");
-            }
-        }
-    }
+    case ButtonType::Load: 
+        manager.Load();
     break;
     case ButtonType::Download:
         break;
+    case ButtonType::Help:
+        manager.HelpPopup();
+        break;
     case ButtonType::Theme:
-        manager.SetDarkTheme(!manager.HasDarkTheme());
-        InvalidateRect(m_parent, NULL, TRUE);
+        manager.ChangeTheme();
         break;
     case ButtonType::EncodeAction:
     {
