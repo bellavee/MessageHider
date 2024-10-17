@@ -11,6 +11,7 @@ enum class ButtonType
     DecodePage,
     Load,
     Download,
+    Help,
     Theme,
     EncodeAction,
     DecodeAction
