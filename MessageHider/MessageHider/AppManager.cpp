@@ -8,11 +8,7 @@ std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
 AppManager& AppManager::GetInstance()
 {
-    if (m_instance == nullptr)
-    {
-        m_instance = std::unique_ptr<AppManager>(new AppManager());
-    }
-
+    if (m_instance == nullptr) m_instance = std::unique_ptr<AppManager>(new AppManager());
     return *m_instance;
 }
 
@@ -22,8 +18,8 @@ std::string AppManager::GetUserInput()
     int length = GetWindowTextLength(m_inputField);
 
     if (length > 0) {
-        // Cr√©ez un buffer pour stocker le texte
-        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caract√®re null
+        // Buffer pour stocker le texte
+        wchar_t* buffer = new wchar_t[length + 1];
         GetWindowText(m_inputField, buffer, length + 1);
 
         std::wstring wstr(buffer);
@@ -99,12 +95,6 @@ void AppManager::CreateEncodeElements()
         m_wInstance,                                    // Instance de l'application
         NULL                                            // Param√®tre additionnel
     );
-
-    if (m_dropdown == NULL)
-    {
-        MessageBox(NULL, L"√âchec de la cr√©ation de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
-        return;
-    }
 
     // Ajout des options de filtre dans la combo box
     SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"No Filter");
@@ -200,9 +190,15 @@ void AppManager::ShowErrorPopup(const WCHAR* error)
     MessageBox(
         NULL,
         error,                  // Le message d'erreur ‡ afficher
-        L"Erreur",              // Le titre de la boÓte de dialogue
+        L"ERROR",              // Le titre de la boÓte de dialogue
         MB_ICONERROR | MB_OK    // IcÙne d'erreur et bouton "OK"
     );
+}
+
+void AppManager::Loading(bool loading)
+{
+    HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);
+    SetCursor(hCursor);
 }
 
 AppManager::AppManager() : m_imageLoaded(false)

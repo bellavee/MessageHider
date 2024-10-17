@@ -71,11 +71,6 @@ void Button::Create()
     );
 }
 
-void Button::Destroy()
-{
-    DestroyWindow(m_hWnd);
-}
-
 void Button::OnClick()
 {
     AppManager& manager = AppManager::GetInstance();
@@ -108,6 +103,8 @@ void Button::OnClick()
         ofn.lpstrInitialDir = NULL;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
+        manager.Loading(true);
+
         if (GetOpenFileName(&ofn) == TRUE)
         {
             // Convert wchar_t[] (file path) to std::string after file selection
@@ -115,8 +112,9 @@ void Button::OnClick()
             std::string file(wstr.begin(), wstr.end());
 
             try {
-                manager.SetImageLoaded(false);
+                manager.Loading(true);
                 manager.LoadImage(file);                    // Load the selected image
+                manager.Loading(false);
                 InvalidateRect(m_parent, NULL, TRUE);       // Force window refresh
             }
             catch (const std::exception& e) {

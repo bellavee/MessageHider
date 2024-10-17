@@ -31,7 +31,7 @@ public:
     virtual ~Button();
 
     void Create();
-    void Destroy();
+    void Destroy() const { DestroyWindow(m_hWnd); }
     virtual void OnClick();
 
     HMENU GetId() const { return m_id; }

@@ -32,6 +32,7 @@ public:
     void DrawEncodeElements();
     void HandleNewPage();
     void ShowErrorPopup(const WCHAR* error);
+    void Loading(bool loading);
 
     // Getters
     Image* GetImage() { return m_image.get(); }
