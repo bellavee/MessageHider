@@ -38,6 +38,7 @@ public:
     void HelpPopup();
     void Load();
     void ChangeTheme();
+    void Loading(bool loading);
 
     // Getters
     Image* GetImage() const { return m_image.get(); }

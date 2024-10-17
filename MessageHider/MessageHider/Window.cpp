@@ -28,7 +28,7 @@ bool Window::Display()
     AppManager& manager = AppManager::GetInstance();
 
     manager.CreateElements(m_hWnd, m_hInstance);
-    CreateButtons(); // TODO -> move to manager
+    CreateButtons();
 
 
     ShowWindow(m_hWnd, SW_SHOW);

@@ -75,11 +75,6 @@ void Button::Create()
     );
 }
 
-void Button::Destroy()
-{
-    DestroyWindow(m_hWnd);
-}
-
 void Button::OnClick()
 {
     AppManager& manager = AppManager::GetInstance();
@@ -110,7 +105,6 @@ void Button::OnClick()
     case ButtonType::EncodeAction:
     {
         std::string input = manager.GetUserInput();
-        if (input.empty() || !manager.HasImageLoaded()) break;
         LSB lsb;
         lsb.Encode(input);
 
@@ -120,7 +114,6 @@ void Button::OnClick()
     break;
     case ButtonType::DecodeAction:
     {
-        if (!manager.HasImageLoaded()) break;
         LSB lsb;
         manager.SetDecodedMessage(lsb.Decode());
     }
