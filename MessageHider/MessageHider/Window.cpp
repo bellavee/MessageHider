@@ -3,6 +3,7 @@
 #include "window.h"
 #include "Button.h"
 #include "JpegImage.h"
+
 ULONG_PTR Window::m_gdiplusToken = 0;
 
 Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
@@ -24,7 +25,6 @@ Window::~Window()
 
 bool Window::Display()
 {
-    CreateSlider();
     AppManager& manager = AppManager::GetInstance();
 
     manager.CreateElements(m_hWnd, m_hInstance);
@@ -205,80 +205,6 @@ void Window::DrawImage(HDC hdc)
     }
 }
 
-void Window::DrawCapacityInputFieldText(HDC hdc)
-{
-    if (!m_hNormalFont)
-    {
-        m_hNormalFont = CreateFont
-        (
-            15,                         // Hauteur de la police
-            0,                          // Largeur de la police
-            0,                          // Angle de l'orientation de la police
-            0,                          // Angle d'orientation du texte
-            FALSE,                      // Gras
-            FALSE,                      // Italique
-            FALSE,                      // Souligné
-            FALSE,                      // Barré
-            DEFAULT_CHARSET,            // Jeu de caractères par défaut
-            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
-            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
-            DEFAULT_QUALITY,            // Qualité de rendu par défaut
-            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
-            L"Arial"                    // Nom de la police
-        );
-    }
-
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, WHITE);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* capacityInputFieldText = L"Maximum message capacity : ";
-    TextOut(hdc,(WINDOW_WIDTH /2), ((WINDOW_HEIGHT / 2) + 3), capacityInputFieldText, wcslen(capacityInputFieldText));
-}
-
-void Window::DrawCapacityInputField(HDC hdc) const
-{
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, RED);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* capacityInputField = L"capacityInputField";
-    TextOut(hdc, ((WINDOW_WIDTH / 2) + 165 ), ((WINDOW_HEIGHT / 2) + 3), capacityInputField, wcslen(capacityInputField));
-}
-
-void Window::DrawFilterIntensityText(HDC hdc) const
-{
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, WHITE);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* filterIntensityText = L"Filter intensity";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), filterIntensityText, wcslen(filterIntensityText));
-}
-
-void Window::CreateSlider()
-{
-    m_hSlider = CreateWindowEx
-    (
-        0,                                      
-        TRACKBAR_CLASS,                                                 // Classe
-        L"",                                                            // Texte de la fenêtre
-        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                  // Position X
-        500,                                                            // Position Y 
-        450,                                                            // Largeur
-        30,                                                             // Hauteur
-        m_hWnd,                                                         // Handle de la fenêtre parent
-        nullptr,                                                        // Identifiant du slider 
-        nullptr,                                                        // Instance de l'application
-        nullptr                                                         // Paramètre additionnel
-    );
-
-    // Définir la plage du slider
-    SendMessage(m_hSlider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
-    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                       // Position initiale à 50
-}
-
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static Window* pThis = nullptr;
@@ -322,11 +248,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : LTGRAY_BRUSH));
 
             pThis->DrawTitle(hdc);
-            pThis->DrawCapacityInputFieldText(hdc);
-            pThis->DrawCapacityInputField(hdc);
-            pThis->DrawFilterIntensityText(hdc);
-
             pThis->DrawImage(hdc);
+
+            if (manager.GetCurrentPage() == Page::Encode) manager.DrawEncodeElements();
         }
         EndPaint(hWnd, &ps);
     }
