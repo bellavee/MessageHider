@@ -145,7 +145,7 @@ void Button::OnClick()
     {
         if (!manager.HasImageLoaded()) break;
         LSB lsb;
-        std::string result = lsb.Decode();
+        manager.SetDecodedMessage(lsb.Decode());
     }
     break;
     }

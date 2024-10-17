@@ -189,6 +189,16 @@ void AppManager::HandleNewPage()
     m_imageLoaded = false;
 }
 
+void AppManager::ShowErrorPopup(const WCHAR* error)
+{
+    MessageBox(
+        NULL,
+        error,                  // Le message d'erreur à afficher
+        L"Erreur",              // Le titre de la boîte de dialogue
+        MB_ICONERROR | MB_OK    // Icône d'erreur et bouton "OK"
+    );
+}
+
 AppManager::AppManager() : m_imageLoaded(false)
 {
     m_darkTheme = true;
