@@ -27,7 +27,7 @@ protected:
 	bool EncodeIsOver(size_t i);
 	bool HandleErrors();
 
-	void LoadImage(); //temp
+	void LoadImage();
 
 	std::string m_message;
 	std::string m_binaryMessage;

@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <CommCtrl.h>
 #include "Image.h"
+#include "ImageFilter.h"
 
 class Button;
 
@@ -37,6 +38,7 @@ public:
     bool HasDarkTheme() const { return m_darkTheme; }
     Page GetCurrentPage() const { return m_currentPage; }
     std::vector<Button*> GetButtons() { return m_buttons; }
+    HWND GetDropdown() const { return m_dropdown; }
 
     // Setters
     void SetUserInput(std::string input) { m_userInput = input; }
@@ -44,6 +46,10 @@ public:
     void SetDarkTheme(bool value) { m_darkTheme = value; }
     void SetCurrentPage(Page newPage) { m_currentPage = newPage; }
     void SetButtons(std::vector<Button*> buttons) { m_buttons = buttons; }
+
+    void HandleDropdownChange();
+    void HandleSliderChange(int value);
+    void ApplyCurrentFilter();
 
     void LoadImage(const std::string& filename);
 
@@ -65,7 +71,10 @@ private:
     std::vector<Button*> m_buttons;
     HWND m_inputField;
     HWND m_dropdown;
-    HWND m_slider;
+
+    std::unique_ptr<ImageFilter> m_currentFilter;
+    int m_currentFilterValue;
+    int m_selectedFilterIndex;
 
     AppManager();
     AppManager(const AppManager&) = delete;
