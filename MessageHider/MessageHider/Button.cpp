@@ -115,11 +115,12 @@ void Button::OnClick()
             std::string file(wstr.begin(), wstr.end());
 
             try {
+                manager.SetImageLoaded(false);
                 manager.LoadImage(file);                    // Load the selected image
                 InvalidateRect(m_parent, NULL, TRUE);       // Force window refresh
             }
             catch (const std::exception& e) {
-                MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
+                manager.ShowErrorPopup(L"Error loading image");
             }
         }
     }
@@ -133,7 +134,6 @@ void Button::OnClick()
     case ButtonType::EncodeAction:
     {
         std::string input = manager.GetUserInput();
-        if (input.empty() || !manager.HasImageLoaded()) break;
         LSB lsb;
         lsb.Encode(input);
 
@@ -143,7 +143,6 @@ void Button::OnClick()
     break;
     case ButtonType::DecodeAction:
     {
-        if (!manager.HasImageLoaded()) break;
         LSB lsb;
         manager.SetDecodedMessage(lsb.Decode());
     }

@@ -2,7 +2,7 @@
 
 bool Steganography::Encode(std::string message)
 {
-	GetImageDatas(); // temp
+	if (!GetImageDatas()) return false;
 
 	Reset();
 	m_message = message;
@@ -39,23 +39,32 @@ bool Steganography::EncodeIsOver(size_t i)
 
 bool Steganography::HandleErrors()
 {
+	AppManager& manager = AppManager::GetInstance();
+
 	if (m_message.empty())
 	{
-		std::cerr << "Error: No message provided." << std::endl;
+		manager.ShowErrorPopup(L"No message provided.");
 		return false;
 	}
 	else if (m_binaryMessage.size() > m_imageBytes.size())
 	{
-		std::cerr << "Error: Message too long for the image size." << std::endl;
+		manager.ShowErrorPopup(L"Message too long for the image size.");
 		return false;
 	}
 
 	return true;
 }
 
-void Steganography::GetImageDatas()
+bool Steganography::GetImageDatas()
 {
 	AppManager& manager = AppManager::GetInstance();
+
+	if (!manager.HasImageLoaded())
+	{
+		manager.ShowErrorPopup(L"No image loaded.");
+		return false;
+	}
+
 	m_imageBytes = manager.GetImage()->GetPixelData();
 
 	/*std::ifstream imageFile("./eevee.png", std::ios::binary);
