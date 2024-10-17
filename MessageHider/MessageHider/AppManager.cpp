@@ -142,14 +142,21 @@ void AppManager::DrawEncodeElements()
     TextOut(m_wHDC, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), sliderText, wcslen(sliderText));
 
     // Capcity label
-    const WCHAR* capacityLabel = L"Maximum message capacity : ";
+    const WCHAR* capacityLabel = L"Message max size : ";
     TextOut(m_wHDC, (WINDOW_WIDTH / 2), ((WINDOW_HEIGHT / 2) + 3), capacityLabel, wcslen(capacityLabel));
 
     SetTextColor(m_wHDC, RED);
 
     // Capacity text
-    const WCHAR* capacityText = m_imageLoaded ? L"(size)" : L"---";
-    TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 165), ((WINDOW_HEIGHT / 2) + 3), capacityText, wcslen(capacityText));
+    std::wstring capacityText = L"---";
+
+    if (m_imageLoaded)
+    {
+        size_t size = GetImage()->GetPixelData().size();
+        capacityText = (std::wstringstream() << size).str();
+    }
+
+    TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 112), ((WINDOW_HEIGHT / 2) + 3), capacityText.c_str(), capacityText.length());
 }
 
 void AppManager::HandleNewPage()
