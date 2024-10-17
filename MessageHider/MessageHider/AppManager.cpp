@@ -179,8 +179,7 @@ void AppManager::HandleNewPage()
         break;
     }
 
-    //m_imageLoaded = false;
-    // TODO -> remove loaded image
+    m_imageLoaded = false;
 }
 
 AppManager::AppManager() : m_imageLoaded(false)

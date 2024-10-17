@@ -20,6 +20,7 @@ bool LSB::Encode(std::string message)
 
 std::string LSB::Decode()
 {
+	GetImageDatas();
 	m_message.clear();
 	uint8_t character = 0;
 

@@ -6,6 +6,8 @@
 #include <bitset>
 #include <fstream>
 
+#include "AppManager.h"
+
 #define BIT_LENGTH 8
 #define NULL_BYTE '\0'
 
@@ -27,7 +29,7 @@ protected:
 	bool EncodeIsOver(size_t i);
 	bool HandleErrors();
 
-	void LoadImage(); //temp
+	void GetImageDatas();
 
 	std::string m_message;
 	std::string m_binaryMessage;
