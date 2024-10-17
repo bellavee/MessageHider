@@ -130,7 +130,7 @@ void Button::OnClick()
         break;
     case ButtonType::Theme:
         manager.SetDarkTheme(!manager.HasDarkTheme());
-        InvalidateRect(m_parent, NULL, TRUE);  // Forcer le rafraîchissement de la fenêtre
+        InvalidateRect(m_parent, NULL, TRUE);
         break;
     case ButtonType::EncodeAction:
     {
@@ -145,7 +145,9 @@ void Button::OnClick()
     case ButtonType::DecodeAction:
     {
         LSB lsb;
-        manager.SetDecodedMessage(lsb.Decode());
+        std::string result = lsb.Decode();
+        manager.SetDecodedMessage(result);
+        InvalidateRect(m_parent, NULL, TRUE);
     }
     break;
     }
