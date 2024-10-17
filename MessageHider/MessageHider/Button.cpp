@@ -160,7 +160,8 @@ void Button::OnClick()
     case ButtonType::DecodeAction:
     {
         if (!manager.HasImageLoaded()) break;
-        manager.SetDecodedMessage(m_lsb->Decode());
+        std::string result = m_lsb->Decode();
+        manager.SetDecodedMessage(result);
         InvalidateRect(m_parent, NULL, TRUE);
     }
     break;
