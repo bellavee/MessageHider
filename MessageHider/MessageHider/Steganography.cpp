@@ -1,11 +1,8 @@
 #include "Steganography.h"
 
-#include "AppManager.h"
-#include "Image.h"
-
 bool Steganography::Encode(std::string message)
 {
-	GetImageData();
+	LoadImage(); // temp
 
 	Reset();
 	m_message = message;
@@ -56,19 +53,14 @@ bool Steganography::HandleErrors()
 	return true;
 }
 
-void Steganography::GetImageData()
+void Steganography::LoadImage()
 {
-	try {
-		Image* image = AppManager::GetInstance().GetImage();
-		if (image) {
-			m_imageBytes = image->GetPixelData();
-		}
-		else {
-			throw std::runtime_error("Failed to get image data from AppManager");
-		}
+	std::ifstream imageFile("./eevee.png", std::ios::binary);
+	if (!imageFile) {
+		std::cerr << "Impossible d'ouvrir l'image" << std::endl;
+		return;
 	}
-	catch (const std::exception& e) {
-		std::cerr << "Error loading image: " << e.what() << std::endl;
-		throw;
-	}
+
+	m_imageBytes = std::vector<uint8_t>((std::istreambuf_iterator<char>(imageFile)), std::istreambuf_iterator<char>());
+	imageFile.close();
 }

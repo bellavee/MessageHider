@@ -17,3 +17,20 @@ private:
     int m_value;
 };
 
+class ContrastFilter : public ImageFilter {
+public:
+    explicit ContrastFilter(float factor) : m_factor(factor) {}
+    void Apply(Image& image) const override;
+
+private:
+    float m_factor;
+};
+
+class SaturationFilter : public ImageFilter {
+public:
+    explicit SaturationFilter(float factor) : m_factor(factor) {}
+    void Apply(Image& image) const override;
+
+private:
+    float m_factor;
+};

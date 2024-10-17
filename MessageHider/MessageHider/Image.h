@@ -13,11 +13,13 @@ public:
     int GetHeight() const { return m_height; }
     const std::vector<uint8_t>& GetPixelData() const { return m_pixelData; }
 
-    //virtual void UpdateBitmap() = 0;
+    virtual void UpdateBitmap() = 0;
+    virtual void ResetToOriginal();
 
 protected:
     HBITMAP m_hBitmap = NULL;
     int m_width = 0;
     int m_height = 0;
     std::vector<uint8_t> m_pixelData;
+    std::vector<uint8_t> m_originalPixelData;
 };

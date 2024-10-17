@@ -2,6 +2,7 @@
 #include "PngImage.h"
 #include "JpegImage.h"
 #include "Button.h"
+#include "Resource.h"
 
 std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
@@ -73,9 +74,9 @@ void AppManager::CreateDropdown()
         450,                                            // Position Y
         225,                                            // Largeur
         100,                                            // Hauteur
-        m_wHWND,                                         // Handle de la fenêtre parent
-        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
-        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
+        m_wHWND,                                        // Handle de la fenêtre parent
+        (HMENU)IDC_FILTER_DROPDOWN,                     // Identifiant de la combo box
+        m_wInstance,                                    // Instance de l'application
         NULL                                            // Paramètre additionnel
     );
 
@@ -85,9 +86,14 @@ void AppManager::CreateDropdown()
         return;
     }
 
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+    // Ajout des options de filtre dans la combo box
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"No Filter");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Brightness");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Contrast");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Saturation");
+
+    // Sélectionner la première option par défaut
+    SendMessage(m_dropdown, CB_SETCURSEL, 0, 0);
 }
 
 void AppManager::HandleNewPage()
@@ -153,5 +159,52 @@ void AppManager::LoadImage(const std::string& filename)
     }
     catch (const std::exception& e) {
         throw std::runtime_error("Error loading image: " + std::string(e.what()));
+    }
+}
+
+void AppManager::HandleDropdownChange()
+{
+    m_selectedFilterIndex = SendMessage(m_dropdown, CB_GETCURSEL, 0, 0);
+	if (m_image && m_imageLoaded)
+        m_image->ResetToOriginal();
+    InvalidateRect(m_wHWND, NULL, TRUE);
+}
+
+void AppManager::HandleSliderChange(int value)
+{
+    m_currentFilterValue = value;
+    ApplyCurrentFilter();
+}
+
+void AppManager::ApplyCurrentFilter()
+{
+    if (m_image && m_imageLoaded)
+    {
+        // Reset to original image before applying new filter
+        m_image->ResetToOriginal();
+
+        switch (m_selectedFilterIndex)
+        {
+        case 0: // No filter
+            m_currentFilter = nullptr;
+            break;
+        case 1: // Brightness filter
+            m_currentFilter = std::make_unique<BrightnessFilter>(m_currentFilterValue - 50);
+            break;
+        case 2: // Contrast filter
+            m_currentFilter = std::make_unique<ContrastFilter>((m_currentFilterValue / 50.0f) + 0.5f);
+            break;
+        case 3: // Saturation filter
+            m_currentFilter = std::make_unique<SaturationFilter>((m_currentFilterValue / 50.0f) + 0.5f);
+            break;
+        }
+
+        if (m_currentFilter)
+        {
+            m_currentFilter->Apply(*m_image);
+        }
+
+        // Trigger a repaint of the window
+        InvalidateRect(m_wHWND, NULL, TRUE);
     }
 }

@@ -253,19 +253,19 @@ void Window::CreateSlider()
         TRACKBAR_CLASS,                                                 // Classe
         L"",                                                            // Texte de la fenêtre
         WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                   // Position X
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                  // Position X
         500,                                                            // Position Y 
         450,                                                            // Largeur
         20,                                                             // Hauteur
         m_hWnd,                                                         // Handle de la fenêtre parent
-        nullptr,                                                        // Identifiant du slider 
-        nullptr,                                                        // Instance de l'application
+        reinterpret_cast<HMENU>(IDC_SLIDER),                            // Identifiant du slider 
+        m_hInstance,                                                    // Instance de l'application
         nullptr                                                         // Paramètre additionnel
     );
 
     // Définir la plage du slider
     SendMessage(m_hSlider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
-    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                       // Position initiale à 50
+    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                 // Position initiale à 50
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -289,6 +289,15 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         break;
     case WM_COMMAND:
     {
+        if (HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            if ((HWND)lParam == manager.GetDropdown())
+            {
+                manager.HandleDropdownChange();
+                SendMessage(pThis->m_hSlider, TBM_SETPOS, TRUE, 50);
+            }
+        }
+
         for (Button* button : manager.GetButtons())
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
@@ -299,6 +308,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         }
     }
     break;
+    case WM_HSCROLL:
+        if ((HWND)lParam == pThis->m_hSlider)
+        {
+            int sliderValue = SendMessage(pThis->m_hSlider, TBM_GETPOS, 0, 0);
+            manager.HandleSliderChange(sliderValue);
+        }
+        break;
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
