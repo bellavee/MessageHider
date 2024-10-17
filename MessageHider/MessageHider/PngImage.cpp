@@ -8,6 +8,8 @@ void PngImage::LoadFromFile(const std::string& filename) {
     PNG_IHDR ihdr;
     std::vector<uint8_t> idat = ParsePng(filename, ihdr);
     CreateBitmapFromPngData(idat, ihdr);
+
+    m_originalPixelData = m_pixelData;
 }
 
 void PngImage::Render(HDC hdc, int x, int y, int desiredWidth, int desiredHeight) const {
@@ -245,4 +247,22 @@ void PngImage::CreateBitmapFromPngData(const std::vector<uint8_t>& idat, const P
     memcpy(bits, m_pixelData.data(), m_pixelData.size());
 
     ReleaseDC(NULL, hdc);
+}
+
+void PngImage::UpdateBitmap() {
+    if (m_hBitmap && !m_pixelData.empty()) {
+        HDC hdc = GetDC(NULL);
+        if (hdc != NULL) {
+            BITMAPINFO bmi = { 0 };
+            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+            bmi.bmiHeader.biWidth = m_width;
+            bmi.bmiHeader.biHeight = -m_height;  // Negative for top-down DIB
+            bmi.bmiHeader.biPlanes = 1;
+            bmi.bmiHeader.biBitCount = 32; // Always use 32 bits for BGRA
+            bmi.bmiHeader.biCompression = BI_RGB;
+
+            SetDIBits(hdc, m_hBitmap, 0, m_height, m_pixelData.data(), &bmi, DIB_RGB_COLORS);
+            ReleaseDC(NULL, hdc);
+        }
+    }
 }

@@ -2,6 +2,7 @@
 #include "PngImage.h"
 #include "JpegImage.h"
 #include "Button.h"
+#include "Resource.h"
 
 std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
@@ -21,8 +22,8 @@ std::string AppManager::GetUserInput()
     int length = GetWindowTextLength(m_inputField);
 
     if (length > 0) {
-        // Créez un buffer pour stocker le texte
-        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caractère null
+        // CrÃ©ez un buffer pour stocker le texte
+        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caractÃ¨re null
         GetWindowText(m_inputField, buffer, length + 1);
 
         std::wstring wstr(buffer);
@@ -50,13 +51,13 @@ void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
             0,                          // Angle d'orientation du texte
             FALSE,                      // Gras
             FALSE,                      // Italique
-            FALSE,                      // Souligné
-            FALSE,                      // Barré
-            DEFAULT_CHARSET,            // Jeu de caractères par défaut
-            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
-            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
-            DEFAULT_QUALITY,            // Qualité de rendu par défaut
-            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
+            FALSE,                      // SoulignÃ©
+            FALSE,                      // BarrÃ©
+            DEFAULT_CHARSET,            // Jeu de caractÃ¨res par dÃ©faut
+            OUT_DEFAULT_PRECIS,         // PrÃ©cision de sortie par dÃ©faut
+            CLIP_DEFAULT_PRECIS,        // PrÃ©cision de dÃ©coupe par dÃ©faut
+            DEFAULT_QUALITY,            // QualitÃ© de rendu par dÃ©faut
+            0,                          // MÃ©thode d'orientation (0 pour utiliser la mÃ©thode par dÃ©faut)
             L"Arial"                    // Nom de la police
         );
     }
@@ -88,49 +89,54 @@ void AppManager::CreateEncodeElements()
     // Dropdown
     m_dropdown = CreateWindow
     (
-        L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
-        L"No filter",                                   // Texte affiché par défaut dans la combo box
-        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
+        L"COMBOBOX",                                    // Classe de la fenÃªtre : une liste dÃ©roulante
+        L"No filter",                                   // Texte affichÃ© par dÃ©faut dans la combo box
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste dÃ©roulante
         (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),  // Position X 
         (WINDOW_HEIGHT / 2),                            // Position Y
         225,                                            // Largeur
         100,                                            // Hauteur
-        m_wHWND,                                        // Handle de la fenêtre parent
-        NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
-        NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
-        NULL                                            // Paramètre additionnel
+        m_wHWND,                                        // Handle de la fenÃªtre parent
+        (HMENU)IDC_FILTER_DROPDOWN,                     // Identifiant de la combo box
+        m_wInstance,                                    // Instance de l'application
+        NULL                                            // ParamÃ¨tre additionnel
     );
 
     if (m_dropdown == NULL)
     {
-        MessageBox(NULL, L"Échec de la création de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
+        MessageBox(NULL, L"Ã‰chec de la crÃ©ation de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
         return;
     }
 
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 1");
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 2");
-    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Filtre 3");
+    // Ajout des options de filtre dans la combo box
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"No Filter");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Brightness");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Contrast");
+    SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Saturation");
+
+    // SÃ©lectionner la premiÃ¨re option par dÃ©faut
+    SendMessage(m_dropdown, CB_SETCURSEL, 0, 0);
 
     // Slider
     m_slider = CreateWindowEx
     (
         0,
-        TRACKBAR_CLASS,                                                 // Classe
-        L"",                                                            // Texte de la fenêtre
-        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                  // Position X
-        500,                                                            // Position Y 
-        450,                                                            // Largeur
-        30,                                                             // Hauteur
-        m_wHWND,                                                         // Handle de la fenêtre parent
-        nullptr,                                                        // Identifiant du slider 
-        nullptr,                                                        // Instance de l'application
-        nullptr                                                         // Paramètre additionnel
+        TRACKBAR_CLASS,
+        L"",
+        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),
+        500,
+        450,
+        30,
+        m_wHWND,
+        (HMENU)IDC_SLIDER,
+        m_wInstance,
+        nullptr
     );
 
-    // Définir la plage du slider
-    SendMessage(m_slider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
-    SendMessage(m_slider, TBM_SETPOS, TRUE, 50);
+    // DÃ©finir la plage du slider
+    SendMessage(m_slider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 Ã  100
+    SendMessage(m_slider, TBM_SETPOS, TRUE, 50);    
 }
 
 void AppManager::CreateDecodeElements()
@@ -164,14 +170,21 @@ void AppManager::DrawEncodeElements() const
     TextOut(m_wHDC, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), sliderText, wcslen(sliderText));
 
     // Capcity label
-    const WCHAR* capacityLabel = L"Maximum message capacity : ";
+    const WCHAR* capacityLabel = L"Message max size : ";
     TextOut(m_wHDC, (WINDOW_WIDTH / 2), ((WINDOW_HEIGHT / 2) + 3), capacityLabel, wcslen(capacityLabel));
 
     SetTextColor(m_wHDC, RED);
 
     // Capacity text
-    const WCHAR* capacityText = m_imageLoaded ? L"(size)" : L"---";
-    TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 165), ((WINDOW_HEIGHT / 2) + 3), capacityText, wcslen(capacityText));
+    std::wstring capacityText = L"---";
+
+    if (m_imageLoaded)
+    {
+        size_t size = GetImage()->GetPixelData().size();
+        capacityText = (std::wstringstream() << size).str();
+    }
+
+    TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 112), ((WINDOW_HEIGHT / 2) + 3), capacityText.c_str(), capacityText.length());
 }
 
 void AppManager::HandleNewPage()
@@ -204,8 +217,17 @@ void AppManager::HandleNewPage()
         break;
     }
 
-    //m_imageLoaded = false;
-    // TODO -> remove loaded image
+    m_imageLoaded = false;
+}
+
+void AppManager::ShowErrorPopup(const WCHAR* error)
+{
+    MessageBox(
+        NULL,
+        error,                  // Le message d'erreur à afficher
+        L"Erreur",              // Le titre de la boîte de dialogue
+        MB_ICONERROR | MB_OK    // Icône d'erreur et bouton "OK"
+    );
 }
 
 AppManager::AppManager() : m_imageLoaded(false)
@@ -241,5 +263,52 @@ void AppManager::LoadImage(const std::string& filename)
     }
     catch (const std::exception& e) {
         throw std::runtime_error("Error loading image: " + std::string(e.what()));
+    }
+}
+
+void AppManager::HandleDropdownChange()
+{
+    m_selectedFilterIndex = SendMessage(m_dropdown, CB_GETCURSEL, 0, 0);
+	if (m_image && m_imageLoaded)
+        m_image->ResetToOriginal();
+    InvalidateRect(m_wHWND, NULL, TRUE);
+}
+
+void AppManager::HandleSliderChange(int value)
+{
+    m_currentFilterValue = value;
+    ApplyCurrentFilter();
+}
+
+void AppManager::ApplyCurrentFilter()
+{
+    if (m_image && m_imageLoaded)
+    {
+        // Reset to original image before applying new filter
+        m_image->ResetToOriginal();
+
+        switch (m_selectedFilterIndex)
+        {
+        case 0: // No filter
+            m_currentFilter = nullptr;
+            break;
+        case 1: // Brightness filter
+            m_currentFilter = std::make_unique<BrightnessFilter>(m_currentFilterValue - 50);
+            break;
+        case 2: // Contrast filter
+            m_currentFilter = std::make_unique<ContrastFilter>((m_currentFilterValue / 50.0f) + 0.5f);
+            break;
+        case 3: // Saturation filter
+            m_currentFilter = std::make_unique<SaturationFilter>((m_currentFilterValue / 50.0f) + 0.5f);
+            break;
+        }
+
+        if (m_currentFilter)
+        {
+            m_currentFilter->Apply(*m_image);
+        }
+
+        // Trigger a repaint of the window
+        InvalidateRect(m_wHWND, NULL, TRUE);
     }
 }
