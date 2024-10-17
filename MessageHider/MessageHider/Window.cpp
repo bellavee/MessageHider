@@ -204,69 +204,7 @@ void Window::DrawImage(HDC hdc)
         DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 }
-void Window::DrawMessageCapacityText(HDC hdc)
-{
-    if (!m_hNormalFont)
-    {
-        m_hNormalFont = CreateFont
-        (
-            15,                         // Hauteur de la police
-            0,                          // Largeur de la police
-            0,                          // Angle de l'orientation de la police
-            0,                          // Angle d'orientation du texte
-            FALSE,                      // Gras
-            FALSE,                      // Italique
-            FALSE,                      // Souligné
-            FALSE,                      // Barré
-            DEFAULT_CHARSET,            // Jeu de caractères par défaut
-            OUT_DEFAULT_PRECIS,         // Précision de sortie par défaut
-            CLIP_DEFAULT_PRECIS,        // Précision de découpe par défaut
-            DEFAULT_QUALITY,            // Qualité de rendu par défaut
-            0,                          // Méthode d'orientation (0 pour utiliser la méthode par défaut)
-            L"Arial"                    // Nom de la police
-        );
-    }
 
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, WHITE);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* messageCapacity = L"Maximum message capacity : ";
-    TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
-}
-
-void Window::DrawFilterIntensityText(HDC hdc) const
-{
-    SelectObject(hdc, m_hNormalFont);
-    SetTextColor(hdc, WHITE);
-    SetBkMode(hdc, TRANSPARENT);
-
-    const WCHAR* filterIntensityText = L"Filter intensity";
-    TextOut(hdc, ((WINDOW_WIDTH / 2 - 48)), ((WINDOW_HEIGHT / 2) + 30), filterIntensityText, wcslen(filterIntensityText));
-}
-
-void Window::CreateSlider()
-{
-    m_hSlider = CreateWindowEx
-    (
-        0,                                      
-        TRACKBAR_CLASS,                                                 // Classe
-        L"",                                                            // Texte de la fenêtre
-        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                  // Position X
-        500,                                                            // Position Y 
-        450,                                                            // Largeur
-        20,                                                             // Hauteur
-        m_hWnd,                                                         // Handle de la fenêtre parent
-        reinterpret_cast<HMENU>(IDC_SLIDER),                            // Identifiant du slider 
-        m_hInstance,                                                    // Instance de l'application
-        nullptr                                                         // Paramètre additionnel
-    );
-
-    // Définir la plage du slider
-    SendMessage(m_hSlider, TBM_SETRANGE, TRUE, MAKELPARAM(0, 100));     // Plage de 0 à 100
-    SendMessage(m_hSlider, TBM_SETPOS, TRUE, 50);                 // Position initiale à 50
-}
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -294,7 +232,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             if ((HWND)lParam == manager.GetDropdown())
             {
                 manager.HandleDropdownChange();
-                SendMessage(pThis->m_hSlider, TBM_SETPOS, TRUE, 50);
+                SendMessage(manager.GetSlider(), TBM_SETPOS, TRUE, 50);
             }
         }
 
@@ -309,9 +247,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     }
     break;
     case WM_HSCROLL:
-        if ((HWND)lParam == pThis->m_hSlider)
+        if ((HWND)lParam == manager.GetSlider())
         {
-            int sliderValue = SendMessage(pThis->m_hSlider, TBM_GETPOS, 0, 0);
+            int sliderValue = SendMessage(manager.GetSlider(), TBM_GETPOS, 0, 0);
             manager.HandleSliderChange(sliderValue);
         }
         break;

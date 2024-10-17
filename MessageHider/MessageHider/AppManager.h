@@ -39,6 +39,7 @@ public:
     Page GetCurrentPage() const { return m_currentPage; }
     std::vector<Button*> GetButtons() { return m_buttons; }
     HWND GetDropdown() const { return m_dropdown; }
+    HWND GetSlider() const { return m_slider; }
 
     // Setters
     void SetUserInput(std::string input) { m_userInput = input; }
@@ -71,6 +72,7 @@ private:
     std::vector<Button*> m_buttons;
     HWND m_inputField;
     HWND m_dropdown;
+    HWND m_slider;
 
     std::unique_ptr<ImageFilter> m_currentFilter;
     int m_currentFilterValue;
