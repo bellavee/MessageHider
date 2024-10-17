@@ -42,8 +42,7 @@ void AppManager::UpdateElement()
     {
         if (m_decodedMessage.size() > (int)maxLength)
         {
-            ShowErrorPopup(L"Hidden message too long.");
-            m_decodedMessage.clear();
+            //ShowErrorPopup(L"Hidden message too long.");
             return;
         }
 
@@ -52,6 +51,7 @@ void AppManager::UpdateElement()
     }
 
     SetWindowText(m_readOnlyInputField, decodedMessage);
+    m_decodedMessage.clear();
 }
 
 void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
@@ -302,6 +302,8 @@ void AppManager::ChangeTheme()
 {
     SetDarkTheme(!HasDarkTheme());
     InvalidateRect(m_wHWND, NULL, TRUE);  // Forcer le rafra�chissement de la fen�tre
+}
+
 void AppManager::Loading(bool loading)
 {
     HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);
