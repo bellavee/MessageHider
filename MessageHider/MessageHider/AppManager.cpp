@@ -1,4 +1,6 @@
 #include "AppManager.h"
+
+#include "BmpImage.h"
 #include "PngImage.h"
 #include "JpegImage.h"
 #include "Button.h"
@@ -227,6 +229,9 @@ void AppManager::LoadImage(const std::string& filename)
     }
     else if (extension == ".jpg" || extension == ".jpeg") {
         m_image = std::make_unique<JpegImage>();
+    }
+    else if (extension == ".bmp") {
+        m_image = std::make_unique<BmpImage>();
     }
     else {
         throw std::runtime_error("Unsupported image format");
