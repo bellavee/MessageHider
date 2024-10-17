@@ -35,6 +35,11 @@ std::string AppManager::GetUserInput()
     return m_userInput;
 }
 
+void AppManager::UpdateElement() const
+{
+    SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
+}
+
 void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
 {
     m_wHWND = hwnd;
@@ -72,19 +77,19 @@ void AppManager::CreateEncodeElements()
     (
         WS_EX_CLIENTEDGE,
         L"EDIT",
-        L"Enter your secret message...",
+        NULL,
         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN | WS_TABSTOP,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,
         150,
         m_wHWND,
-        nullptr,
+        NULL,
         m_wInstance,
-        nullptr
+        NULL
     );
 
-    SendMessage(m_inputField, EM_SETLIMITTEXT, 10, 0);
+    //SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
 
     // Dropdown
     m_dropdown = CreateWindow

@@ -27,6 +27,8 @@ public:
 
     std::string GetUserInput();
 
+    void UpdateElement() const;
+
     void CreateElements(HWND hwnd, HINSTANCE instance);
     void CreateEncodeElements();
     void CreateDecodeElements();
@@ -35,7 +37,7 @@ public:
     void ShowErrorPopup(const WCHAR* error);
 
     // Getters
-    Image* GetImage() { return m_image.get(); }
+    Image* GetImage() const { return m_image.get(); }
     bool HasImageLoaded() const { return m_imageLoaded; }
     bool HasDarkTheme() const { return m_darkTheme; }
     std::string GetDecodedMessage() const { return m_decodedMessage; }

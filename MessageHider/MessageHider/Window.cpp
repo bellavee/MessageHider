@@ -269,7 +269,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
             if (manager.GetCurrentPage() == Page::Encode) manager.DrawEncodeElements();
 
-            //else if (manager.GetCurrentPage() == Page::Decode) manager.DrawDecodeElements();
+            manager.UpdateElement();
 
         }
         EndPaint(hWnd, &ps);
