@@ -8,11 +8,7 @@ std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
 AppManager& AppManager::GetInstance()
 {
-    if (m_instance == nullptr)
-    {
-        m_instance = std::unique_ptr<AppManager>(new AppManager());
-    }
-
+    if (m_instance == nullptr) m_instance = std::unique_ptr<AppManager>(new AppManager());
     return *m_instance;
 }
 
@@ -22,8 +18,8 @@ std::string AppManager::GetUserInput()
     int length = GetWindowTextLength(m_inputField);
 
     if (length > 0) {
-        // CrÃ©ez un buffer pour stocker le texte
-        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caractÃ¨re null
+        // Buffer pour stocker le texte
+        wchar_t* buffer = new wchar_t[length + 1];
         GetWindowText(m_inputField, buffer, length + 1);
 
         std::wstring wstr(buffer);
@@ -107,12 +103,6 @@ void AppManager::CreateEncodeElements()
         NULL                                            // ParamÃ¨tre additionnel
     );
 
-    if (m_dropdown == NULL)
-    {
-        MessageBox(NULL, L"Ã‰chec de la crÃ©ation de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
-        return;
-    }
-
     // Ajout des options de filtre dans la combo box
     SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"No Filter");
     SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"Brightness");
@@ -152,7 +142,7 @@ void AppManager::CreateDecodeElements()
         WS_EX_CLIENTEDGE,
         L"EDIT",
         L" ",
-        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_DISABLED,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,
@@ -185,8 +175,8 @@ void AppManager::DrawEncodeElements() const
 
     if (m_imageLoaded)
     {
-        size_t size = GetImage()->GetPixelData().size();
-        capacityText = (std::wstringstream() << size).str();
+        size_t size = (GetImage()->GetPixelData().size() / 8) - 1;
+        capacityText = (std::wstringstream() << size).str() + L" words";
     }
 
     TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 112), ((WINDOW_HEIGHT / 2) + 3), capacityText.c_str(), capacityText.length());
@@ -230,9 +220,15 @@ void AppManager::ShowErrorPopup(const WCHAR* error)
     MessageBox(
         NULL,
         error,                  // Le message d'erreur à afficher
-        L"Erreur",              // Le titre de la boîte de dialogue
+        L"ERROR",              // Le titre de la boîte de dialogue
         MB_ICONERROR | MB_OK    // Icône d'erreur et bouton "OK"
     );
+}
+
+void AppManager::Loading(bool loading)
+{
+    HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);
+    SetCursor(hCursor);
 }
 
 AppManager::AppManager() : m_imageLoaded(false)
