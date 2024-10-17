@@ -47,7 +47,7 @@ Button::Button(
         m_id = (HMENU)5;
         break;
     case ButtonType::EncodeAction:
-        m_name = L"Hide the message";
+        m_name = L"Hide the message and export image";
         m_id = (HMENU)6;
         m_pageToDisplay = Page::Encode;
         break;
@@ -95,8 +95,8 @@ void Button::OnClick()
     case ButtonType::Load: 
         manager.Load();
     break;
-    case ButtonType::Download:
-        break;
+    // case ButtonType::Download:
+    //     break;
     case ButtonType::Help:
         manager.HelpPopup();
         break;
