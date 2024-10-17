@@ -35,6 +35,9 @@ public:
     void DrawEncodeElements() const;
     void HandleNewPage();
     void ShowErrorPopup(const WCHAR* error);
+    void HelpPopup();
+    void Load();
+    void ChangeTheme();
 
     // Getters
     Image* GetImage() const { return m_image.get(); }

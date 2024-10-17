@@ -247,6 +247,32 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         }
     }
     break;
+    case WM_KEYDOWN:
+    {
+        if (GetKeyState(VK_CONTROL) < 0)
+        {
+            switch (wParam) 
+            {
+            case 'E':
+                if (manager.GetCurrentPage() == Page::Encode) return 0;
+                manager.SetCurrentPage(Page::Encode);
+                manager.HandleNewPage();
+                return 0;
+            case 'D':
+                if (manager.GetCurrentPage() == Page::Decode) return 0;
+                manager.SetCurrentPage(Page::Decode);
+                manager.HandleNewPage();
+                return 0;
+            case 'L':
+                manager.Load();
+                return 0;
+            case 'T':
+                manager.ChangeTheme();
+                return 0;
+            }
+        }
+    }
+    break;
     case WM_HSCROLL:
         if ((HWND)lParam == manager.GetSlider())
         {
