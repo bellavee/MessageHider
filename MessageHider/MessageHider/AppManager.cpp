@@ -72,7 +72,7 @@ void AppManager::CreateEncodeElements()
         WS_EX_CLIENTEDGE,
         L"EDIT",
         L"Enter your secret message...",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN | WS_TABSTOP,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,
@@ -82,6 +82,8 @@ void AppManager::CreateEncodeElements()
         m_wInstance,
         nullptr
     );
+
+    SendMessage(m_inputField, EM_SETLIMITTEXT, 10, 0);
 
     // Dropdown
     m_dropdown = CreateWindow
@@ -190,6 +192,7 @@ void AppManager::HandleNewPage()
     {
     case Page::Encode:
         CreateEncodeElements();
+        DestroyWindow(m_readOnlyInputField);
         InvalidateRect(m_wHWND, NULL, TRUE);
         break;
     case Page::Decode:
