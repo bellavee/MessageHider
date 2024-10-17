@@ -57,13 +57,51 @@ void Steganography::GetImageDatas()
 {
 	AppManager& manager = AppManager::GetInstance();
 	m_imageBytes = manager.GetImage()->GetPixelData();
+}
 
-	/*std::ifstream imageFile("./eevee.png", std::ios::binary);
-	if (!imageFile) {
-		std::cerr << "Impossible d'ouvrir l'image" << std::endl;
-		return;
-	}
+void Steganography::SaveAsBmp(const std::string& filename) {
+    AppManager& manager = AppManager::GetInstance();
+    if (m_imageBytes.empty()) {
+        throw std::runtime_error("No image data available");
+    }
+    int width = manager.GetImage()->GetWidth();
+    int height = manager.GetImage()->GetHeight();
 
-	m_imageBytes = std::vector<uint8_t>((std::istreambuf_iterator<char>(imageFile)), std::istreambuf_iterator<char>());
-	imageFile.close();*/
+    // BMP file header
+    BITMAPFILEHEADER bfh = { 0 };
+    bfh.bfType = 0x4D42; // "BM"
+    bfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + width * height * 4;
+    bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    // BMP info header
+    BITMAPINFOHEADER bih = { 0 };
+    bih.biSize = sizeof(BITMAPINFOHEADER);
+    bih.biWidth = width;
+    bih.biHeight = -height; // Negative for top-down DIB
+    bih.biPlanes = 1;
+    bih.biBitCount = 32; // 32 bits per pixel for BGRA
+    bih.biCompression = BI_RGB;
+    bih.biSizeImage = width * height * 4;
+
+    // Open file for writing
+    std::ofstream file(filename, std::ios::binary);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot create BMP file: " + filename);
+    }
+
+    // Write headers
+    file.write(reinterpret_cast<char*>(&bfh), sizeof(BITMAPFILEHEADER));
+    file.write(reinterpret_cast<char*>(&bih), sizeof(BITMAPINFOHEADER));
+
+    // Write pixel data directly
+    file.write(reinterpret_cast<const char*>(m_imageBytes.data()), m_imageBytes.size());
+
+    if (file.fail()) {
+        throw std::runtime_error("Failed to write BMP data");
+    }
+
+    file.close();
+    if (file.fail()) {
+        throw std::runtime_error("Failed to close BMP file");
+    }
 }

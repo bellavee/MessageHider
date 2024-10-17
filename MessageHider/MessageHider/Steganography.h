@@ -22,6 +22,8 @@ class Steganography
 public:
 	virtual bool Encode(std::string message);
 	virtual std::string Decode() = 0;
+	std::vector<uint8_t> GetImageBytes() const { return m_imageBytes; }
+	void SaveAsBmp(const std::string& filename);
 
 protected:
 	void Reset();

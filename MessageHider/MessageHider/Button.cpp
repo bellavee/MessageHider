@@ -14,7 +14,8 @@ Button::Button(
     m_width(width), m_height(height),
     m_hInstance(hInstance),
     m_parent(parent),
-    m_hWnd(nullptr)
+    m_hWnd(nullptr),
+    m_lsb(std::make_unique<LSB>())
 {
     m_pageToDisplay = Page::All;
 
@@ -125,7 +126,7 @@ void Button::OnClick()
     }
     break;
     case ButtonType::Download:
-        break;
+    break;
     case ButtonType::Theme:
         manager.SetDarkTheme(!manager.HasDarkTheme());
         InvalidateRect(m_parent, NULL, TRUE);  // Forcer le rafraîchissement de la fenêtre
@@ -134,18 +135,59 @@ void Button::OnClick()
     {
         std::string input = manager.GetUserInput();
         if (input.empty() || !manager.HasImageLoaded()) break;
-        LSB lsb;
-        lsb.Encode(input);
 
-        input = input.empty();
+        if (m_lsb->Encode(input)) {
+            MessageBoxA(NULL, "Message encoded successfully!.", "Success", MB_OK | MB_ICONINFORMATION);
+            if (!manager.HasImageLoaded()) {
+                MessageBoxA(NULL, "No image loaded or no message encoded.", "Error", MB_OK | MB_ICONERROR);
+                break;
+            }
+
+            OPENFILENAMEA ofn;
+            char szFile[260] = { 0 };
+            char currentDir[260] = { 0 };
+
+            GetCurrentDirectoryA(260, currentDir);
+
+            ZeroMemory(&ofn, sizeof(ofn));
+            ofn.lStructSize = sizeof(ofn);
+            ofn.hwndOwner = m_parent;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile);
+            ofn.lpstrFilter = "BMP Files\0*.bmp\0All Files\0*.*\0";
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = currentDir;
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+            ofn.lpstrDefExt = "bmp";
+
+            if (GetSaveFileNameA(&ofn) == TRUE)
+            {
+                try {
+                    m_lsb->SaveAsBmp(ofn.lpstrFile);
+                    MessageBoxA(NULL, "Image saved successfully!", "Success", MB_OK | MB_ICONINFORMATION);
+                }
+                catch (const std::exception& e) {
+                    std::string errorMsg = "Error saving image: ";
+                    errorMsg += e.what();
+                    MessageBoxA(NULL, errorMsg.c_str(), "Error", MB_OK | MB_ICONERROR);
+                }
+            }
+        }
+        else {
+            MessageBoxA(NULL, "Failed to encode the message", "Error", MB_OK | MB_ICONERROR);
+        }
+
+        // Clear the input field
+        input.clear();
         manager.SetUserInput(input);
     }
     break;
     case ButtonType::DecodeAction:
     {
         if (!manager.HasImageLoaded()) break;
-        LSB lsb;
-        manager.SetDecodedMessage(lsb.Decode());
+        manager.SetDecodedMessage(m_lsb->Decode());
     }
     break;
     }
