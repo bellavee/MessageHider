@@ -9,12 +9,10 @@
 
 constexpr WCHAR WINDOW_TITLE[] = L"MESSAGE HIDER";
 constexpr auto MAX_LOADSTRING = 100;
-constexpr COLORREF WHITE = RGB(255, 255, 255);
 constexpr COLORREF BLACK = RGB(28, 28, 46);
 constexpr COLORREF LIGHT_BLUE = RGB(169, 200, 232);
 constexpr COLORREF DARK_GREY = RGB(44, 44, 44);  
 constexpr COLORREF LIGHT_GREY = RGB(84, 84, 84);
-constexpr COLORREF RED = RGB(237, 54, 91);
 constexpr COLORREF GREEN = RGB(76, 175, 80);
 constexpr COLORREF BLUE = RGB(0, 140, 186);
 
@@ -30,10 +28,8 @@ public:
 private:
     HINSTANCE m_hInstance;
     HWND m_hWnd;
-    HWND m_hSlider;
 
     HFONT m_hTitleFont;
-    HFONT m_hNormalFont;
 
     WCHAR m_szTitle[MAX_LOADSTRING];
     WCHAR m_szWindowClass[MAX_LOADSTRING];
@@ -44,9 +40,6 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
-    void DrawMessageCapacityText(HDC hdc);
-    void DrawFilterIntensityText(HDC hdc) const;
-    void CreateSlider();
     void DrawImage(HDC hdc);
 
     void CreateButtons();

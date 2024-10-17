@@ -1,5 +1,7 @@
 #pragma once
 
+#include <windows.h>
+#include <CommCtrl.h>
 #include "Image.h"
 #include "ImageFilter.h"
 
@@ -8,6 +10,8 @@ class Button;
 constexpr int WINDOW_WIDTH = 540;
 constexpr int WINDOW_HEIGHT = 900;
 constexpr int ANCHOR_SPACING = 8;
+constexpr COLORREF WHITE = RGB(255, 255, 255);
+constexpr COLORREF RED = RGB(237, 54, 91);
 
 enum class Page
 {
@@ -24,8 +28,8 @@ public:
     std::string GetUserInput();
 
     void CreateElements(HWND hwnd, HINSTANCE instance);
-    void CreateInputField();
-    void CreateDropdown();
+    void CreateEncodeElements();
+    void DrawEncodeElements();
     void HandleNewPage();
 
     // Getters
@@ -60,8 +64,10 @@ private:
 
     HWND m_wHWND;
     HINSTANCE m_wInstance;
+    HDC m_wHDC;
 
     // Elements
+    HFONT m_normalFont;
     std::vector<Button*> m_buttons;
     HWND m_inputField;
     HWND m_dropdown;

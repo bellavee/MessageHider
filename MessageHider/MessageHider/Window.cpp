@@ -3,6 +3,7 @@
 #include "window.h"
 #include "Button.h"
 #include "JpegImage.h"
+
 ULONG_PTR Window::m_gdiplusToken = 0;
 
 Window::Window(HINSTANCE hInst, int nCmdShow) : m_hInstance(hInst)
@@ -24,11 +25,11 @@ Window::~Window()
 
 bool Window::Display()
 {
-    CreateSlider();
     AppManager& manager = AppManager::GetInstance();
 
     manager.CreateElements(m_hWnd, m_hInstance);
     CreateButtons(); // TODO -> move to manager
+
 
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
@@ -169,7 +170,7 @@ void Window::DrawImage(HDC hdc)
         // Calculate the position to center the image in the desired area
         int windowWidth = WINDOW_WIDTH;
         int imageAreaTop = 150;  // Approximate Y position below the "Load an image" button
-        int imageAreaBottom = 450;  // Approximate Y position above the input field
+        int imageAreaBottom = 440;  // Approximate Y position above the input field
         int imageAreaHeight = imageAreaBottom - imageAreaTop;
 
         const Image* image = manager.GetImage();
@@ -203,7 +204,6 @@ void Window::DrawImage(HDC hdc)
         DrawText(hdc, L"No image loaded", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 }
-
 void Window::DrawMessageCapacityText(HDC hdc)
 {
     if (!m_hNormalFont)
@@ -327,10 +327,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : LTGRAY_BRUSH));
 
             pThis->DrawTitle(hdc);
-            pThis->DrawMessageCapacityText(hdc);
-            pThis->DrawFilterIntensityText(hdc);
-
             pThis->DrawImage(hdc);
+
+            if (manager.GetCurrentPage() == Page::Encode) manager.DrawEncodeElements();
         }
         EndPaint(hWnd, &ps);
     }
