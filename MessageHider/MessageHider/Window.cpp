@@ -28,7 +28,7 @@ bool Window::Display()
     AppManager& manager = AppManager::GetInstance();
 
     manager.CreateElements(m_hWnd, m_hInstance);
-    CreateButtons(); // TODO -> move to manager
+    CreateButtons();
 
 
     ShowWindow(m_hWnd, SW_SHOW);
@@ -63,6 +63,7 @@ void Window::CreateButtons()
 
     buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::Help, RED, (415 + ANCHOR_SPACING), 25, 35, 35, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Theme, RED, (465 + ANCHOR_SPACING), 25, 35, 35, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - ANCHOR_SPACING), 100, 300, btnHeight, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING), 750, 480, btnHeight, m_hInstance, m_hWnd));
@@ -246,6 +247,32 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         }
     }
     break;
+    case WM_KEYDOWN:
+    {
+        if (GetKeyState(VK_CONTROL) < 0)
+        {
+            switch (wParam) 
+            {
+            case 'E':
+                if (manager.GetCurrentPage() == Page::Encode) return 0;
+                manager.SetCurrentPage(Page::Encode);
+                manager.HandleNewPage();
+                return 0;
+            case 'D':
+                if (manager.GetCurrentPage() == Page::Decode) return 0;
+                manager.SetCurrentPage(Page::Decode);
+                manager.HandleNewPage();
+                return 0;
+            case 'L':
+                manager.Load();
+                return 0;
+            case 'T':
+                manager.ChangeTheme();
+                return 0;
+            }
+        }
+    }
+    break;
     case WM_HSCROLL:
         if ((HWND)lParam == manager.GetSlider())
         {
@@ -268,6 +295,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->DrawImage(hdc);
 
             if (manager.GetCurrentPage() == Page::Encode) manager.DrawEncodeElements();
+
+            manager.UpdateElement();
+
         }
         EndPaint(hWnd, &ps);
     }

@@ -11,6 +11,7 @@ enum class ButtonType
     DecodePage,
     Load,
     Download,
+    Help,
     Theme,
     EncodeAction,
     DecodeAction
@@ -31,7 +32,7 @@ public:
     virtual ~Button();
 
     void Create();
-    void Destroy();
+    void Destroy() const { DestroyWindow(m_hWnd); }
     virtual void OnClick();
 
     HMENU GetId() const { return m_id; }

@@ -10,11 +10,7 @@ std::unique_ptr<AppManager> AppManager::m_instance = nullptr;
 
 AppManager& AppManager::GetInstance()
 {
-    if (m_instance == nullptr)
-    {
-        m_instance = std::unique_ptr<AppManager>(new AppManager());
-    }
-
+    if (m_instance == nullptr) m_instance = std::unique_ptr<AppManager>(new AppManager());
     return *m_instance;
 }
 
@@ -24,8 +20,8 @@ std::string AppManager::GetUserInput()
     int length = GetWindowTextLength(m_inputField);
 
     if (length > 0) {
-        // CrÃ©ez un buffer pour stocker le texte
-        wchar_t* buffer = new wchar_t[length + 1]; // +1 pour le caractÃ¨re null
+        // Buffer pour stocker le texte
+        wchar_t* buffer = new wchar_t[length + 1];
         GetWindowText(m_inputField, buffer, length + 1);
 
         std::wstring wstr(buffer);
@@ -35,6 +31,11 @@ std::string AppManager::GetUserInput()
     }
 
     return m_userInput;
+}
+
+void AppManager::UpdateElement() const
+{
+    SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
 }
 
 void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
@@ -74,17 +75,19 @@ void AppManager::CreateEncodeElements()
     (
         WS_EX_CLIENTEDGE,
         L"EDIT",
-        L"Enter your secret message...",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+        NULL,
+        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN | WS_TABSTOP,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,
         150,
         m_wHWND,
-        nullptr,
+        NULL,
         m_wInstance,
-        nullptr
+        NULL
     );
+
+    //SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
 
     // Dropdown
     m_dropdown = CreateWindow
@@ -101,12 +104,6 @@ void AppManager::CreateEncodeElements()
         m_wInstance,                                    // Instance de l'application
         NULL                                            // ParamÃ¨tre additionnel
     );
-
-    if (m_dropdown == NULL)
-    {
-        MessageBox(NULL, L"Ã‰chec de la crÃ©ation de la combo box!", L"Erreur", MB_OK | MB_ICONERROR);
-        return;
-    }
 
     // Ajout des options de filtre dans la combo box
     SendMessage(m_dropdown, CB_ADDSTRING, 0, (LPARAM)L"No Filter");
@@ -139,7 +136,27 @@ void AppManager::CreateEncodeElements()
     SendMessage(m_slider, TBM_SETPOS, TRUE, 50);    
 }
 
-void AppManager::DrawEncodeElements()
+void AppManager::CreateDecodeElements()
+{
+    // Input field
+    m_readOnlyInputField = CreateWindowEx
+    (
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L" ",
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_DISABLED,
+        (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
+        540,
+        480,
+        150,
+        m_wHWND,
+        nullptr,
+        m_wInstance,
+        nullptr
+    );
+}
+
+void AppManager::DrawEncodeElements() const
 {
     SelectObject(m_wHDC, m_normalFont);
     SetBkMode(m_wHDC, TRANSPARENT);
@@ -160,8 +177,8 @@ void AppManager::DrawEncodeElements()
 
     if (m_imageLoaded)
     {
-        size_t size = GetImage()->GetPixelData().size();
-        capacityText = (std::wstringstream() << size).str();
+        size_t size = (GetImage()->GetPixelData().size() / 8) - 1;
+        capacityText = (std::wstringstream() << size).str() + L" words";
     }
 
     TextOut(m_wHDC, ((WINDOW_WIDTH / 2) + 112), ((WINDOW_HEIGHT / 2) + 3), capacityText.c_str(), capacityText.length());
@@ -185,8 +202,11 @@ void AppManager::HandleNewPage()
     {
     case Page::Encode:
         CreateEncodeElements();
+        DestroyWindow(m_readOnlyInputField);
+        InvalidateRect(m_wHWND, NULL, TRUE);
         break;
     case Page::Decode:
+        CreateDecodeElements();
         DestroyWindow(m_inputField);
         DestroyWindow(m_dropdown);
         DestroyWindow(m_slider);
@@ -201,10 +221,77 @@ void AppManager::ShowErrorPopup(const WCHAR* error)
 {
     MessageBox(
         NULL,
-        error,                  // Le message d'erreur à afficher
-        L"Erreur",              // Le titre de la boîte de dialogue
-        MB_ICONERROR | MB_OK    // Icône d'erreur et bouton "OK"
+        error,                  // Le message d'erreur ï¿½ afficher
+        L"ERROR",              // Le titre de la boï¿½te de dialogue
+        MB_ICONERROR | MB_OK    // Icï¿½ne d'erreur et bouton "OK"
     );
+}
+
+void AppManager::HelpPopup()
+{
+    const WCHAR* helpMessage =
+        L"===========================\n"
+        L"      Keyboard Shortcuts      \n"
+        L"===========================\n"
+        L"CTRL + E  -> Encode tab\n"
+        L"CTRL + D  -> Decode tab\n"
+        L"CTRL + L  -> Load image\n"
+        L"CTRL + T  -> Change theme\n"
+        L"===========================\n"
+        L"If you encounter errors,\n"
+        L"check the displayed error messages.\n"
+        L"===========================\n";
+
+    MessageBox(
+        NULL,
+        helpMessage,
+        L"Help",
+        MB_ICONINFORMATION | MB_OK
+    );
+}
+
+void AppManager::Load()
+{
+    OPENFILENAME ofn;
+    wchar_t szFile[260] = { 0 };
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = m_wHWND;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = L"Images\0*.png;*.jpg;*.bmp\0All Files\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        // Convert wchar_t[] (file path) to std::string after file selection
+        std::wstring wstr(szFile);
+        std::string file(wstr.begin(), wstr.end());
+
+        try {
+            LoadImage(file);                    // Load the selected image
+            InvalidateRect(m_wHWND, NULL, TRUE);       // Force window refresh
+        }
+        catch (const std::exception& e) {
+            MessageBoxA(NULL, e.what(), "Error loading image", MB_OK | MB_ICONERROR);
+        }
+    }
+
+}
+
+void AppManager::ChangeTheme()
+{
+    SetDarkTheme(!HasDarkTheme());
+    InvalidateRect(m_wHWND, NULL, TRUE);  // Forcer le rafraï¿½chissement de la fenï¿½tre
+void AppManager::Loading(bool loading)
+{
+    HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);
+    SetCursor(hCursor);
 }
 
 AppManager::AppManager() : m_imageLoaded(false)
