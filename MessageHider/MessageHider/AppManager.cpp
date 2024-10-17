@@ -39,6 +39,7 @@ void AppManager::UpdateElement()
 
     WPARAM maxLength = SendMessage(m_readOnlyInputField, EM_GETLIMITTEXT, 0, 0);
     const WCHAR* decodedMessage = L"";
+    std::wstring wDecodedMessage;
 
     if (!m_decodedMessage.empty())
     {
@@ -48,7 +49,7 @@ void AppManager::UpdateElement()
             return;
         }
 
-        std::wstring wDecodedMessage(m_decodedMessage.begin(), m_decodedMessage.end());
+        wDecodedMessage.assign(m_decodedMessage.begin(), m_decodedMessage.end());
         decodedMessage = wDecodedMessage.c_str();
     }
 
