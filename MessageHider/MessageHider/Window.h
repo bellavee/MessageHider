@@ -44,7 +44,8 @@ private:
 
     static void BackgroundColor(HDC hdc, PAINTSTRUCT ps, COLORREF color);
     void DrawTitle(HDC hdc);
-    void DrawMessageCapacityText(HDC hdc);
+    void DrawCapacityInputFieldText(HDC hdc);
+    void DrawCapacityInputField(HDC hdc) const;
     void DrawFilterIntensityText(HDC hdc) const;
     void CreateSlider();
     void DrawImage(HDC hdc);
