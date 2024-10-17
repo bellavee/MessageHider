@@ -31,9 +31,27 @@ std::string AppManager::GetUserInput()
     return m_userInput;
 }
 
-void AppManager::UpdateElement() const
+void AppManager::UpdateElement()
 {
     SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
+
+    WPARAM maxLength = SendMessage(m_readOnlyInputField, EM_GETLIMITTEXT, 0, 0);
+    const WCHAR* decodedMessage = L"";
+
+    if (!m_decodedMessage.empty())
+    {
+        if (m_decodedMessage.size() > (int)maxLength)
+        {
+            //ShowErrorPopup(L"Hidden message too long.");
+            return;
+        }
+
+        std::wstring wDecodedMessage(m_decodedMessage.begin(), m_decodedMessage.end());
+        decodedMessage = wDecodedMessage.c_str();
+    }
+
+    SetWindowText(m_readOnlyInputField, decodedMessage);
+    m_decodedMessage.clear();
 }
 
 void AppManager::CreateElements(HWND hwnd, HINSTANCE instance)
@@ -84,8 +102,6 @@ void AppManager::CreateEncodeElements()
         m_wInstance,
         NULL
     );
-
-    //SendMessage(m_inputField, EM_SETLIMITTEXT, m_imageLoaded ? GetImage()->GetPixelData().size() : 100, 0);
 
     // Dropdown
     m_dropdown = CreateWindow
@@ -215,7 +231,7 @@ void AppManager::HandleNewPage()
     m_imageLoaded = false;
 }
 
-void AppManager::ShowErrorPopup(const WCHAR* error)
+void AppManager::ShowErrorPopup(const WCHAR* error) const
 {
     MessageBox(
         NULL,
@@ -286,6 +302,8 @@ void AppManager::ChangeTheme()
 {
     SetDarkTheme(!HasDarkTheme());
     InvalidateRect(m_wHWND, NULL, TRUE);  // Forcer le rafra�chissement de la fen�tre
+}
+
 void AppManager::Loading(bool loading)
 {
     HCURSOR hCursor = LoadCursor(NULL, loading ? IDC_WAIT : IDC_ARROW);

@@ -115,7 +115,9 @@ void Button::OnClick()
     case ButtonType::DecodeAction:
     {
         LSB lsb;
-        manager.SetDecodedMessage(lsb.Decode());
+        std::string result = lsb.Decode();
+        manager.SetDecodedMessage(result);
+        InvalidateRect(m_parent, NULL, TRUE);
     }
     break;
     }
