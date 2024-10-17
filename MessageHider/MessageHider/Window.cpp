@@ -63,6 +63,7 @@ void Window::CreateButtons()
 
     buttons.push_back(new Button(ButtonType::EncodePage, LIGHT_GREY, 0, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::DecodePage, DARK_GREY, btmBtnW, btmBtnPosY, btmBtnW, btnHeight, m_hInstance, m_hWnd));
+    buttons.push_back(new Button(ButtonType::Help, RED, (415 + ANCHOR_SPACING), 25, 35, 35, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Theme, RED, (465 + ANCHOR_SPACING), 25, 35, 35, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Load, RED, (((WINDOW_WIDTH - 300) / 2) - ANCHOR_SPACING), 100, 300, btnHeight, m_hInstance, m_hWnd));
     buttons.push_back(new Button(ButtonType::Download, BLUE, (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING), 750, 480, btnHeight, m_hInstance, m_hWnd));

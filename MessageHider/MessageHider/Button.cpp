@@ -37,6 +37,9 @@ Button::Button(
         m_id = (HMENU)4;
         m_pageToDisplay = Page::Encode;
         break;
+    case ButtonType::Help:
+        m_name = L"?";
+        break;
     case ButtonType::Theme:
         m_name = L"T";
         m_id = (HMENU)5;

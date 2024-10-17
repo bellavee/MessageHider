@@ -151,7 +151,7 @@ void AppManager::CreateDecodeElements()
     (
         WS_EX_CLIENTEDGE,
         L"EDIT",
-        L"Secret Message extrait avec beaucoup de texte qui va dépasser la taille de la fenêtre pour forcer l apparition d une barre de défilement...",
+        L" ",
         WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
