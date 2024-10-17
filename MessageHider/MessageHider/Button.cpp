@@ -143,8 +143,9 @@ void Button::OnClick()
     break;
     case ButtonType::DecodeAction:
     {
+        if (!manager.HasImageLoaded()) break;
         LSB lsb;
-        std::string result = lsb.Decode();
+        manager.SetDecodedMessage(lsb.Decode());
     }
     break;
     }
