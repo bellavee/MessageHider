@@ -12,10 +12,10 @@
 #define NULL_BYTE '\0'
 
 // ----- Explications -----
-// Quelle que soit la méthode utilisée, il faut :
-// - coder chaque caractère du message secret en base 10 (ascii)
+// Quelle que soit la mï¿½thode utilisï¿½e, il faut :
+// - coder chaque caractï¿½re du message secret en base 10 (ascii)
 // - puis convertir le message en binaire
-// Il faut terminer le message sur un caractère nul pour l'extraction
+// Il faut terminer le message sur un caractï¿½re nul pour l'extraction
 
 class Steganography
 {

@@ -205,6 +205,7 @@ void Window::DrawImage(HDC hdc)
     }
 }
 
+
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static Window* pThis = nullptr;
@@ -226,6 +227,15 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         break;
     case WM_COMMAND:
     {
+        if (HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            if ((HWND)lParam == manager.GetDropdown())
+            {
+                manager.HandleDropdownChange();
+                SendMessage(manager.GetSlider(), TBM_SETPOS, TRUE, 50);
+            }
+        }
+
         for (Button* button : manager.GetButtons())
         {
             if (button->GetId() == (HMENU)LOWORD(wParam))
@@ -236,6 +246,13 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         }
     }
     break;
+    case WM_HSCROLL:
+        if ((HWND)lParam == manager.GetSlider())
+        {
+            int sliderValue = SendMessage(manager.GetSlider(), TBM_GETPOS, 0, 0);
+            manager.HandleSliderChange(sliderValue);
+        }
+        break;
     case WM_PAINT:
     {
         PAINTSTRUCT ps;

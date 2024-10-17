@@ -4,6 +4,8 @@
 
 #define IDS_APP_TITLE			103
 
+#define IDC_FILTER_DROPDOWN		1
+#define IDC_SLIDER				50
 #define IDR_MAINFRAME			128
 #define IDD_MESSAGEHIDER_DIALOG	102
 #define IDD_ABOUTBOX			103

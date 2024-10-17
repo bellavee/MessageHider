@@ -31,6 +31,33 @@ void JpegImage::LoadFromFile(const std::string& filename) {
 
     m_width = m_pBitmap->GetWidth();
     m_height = m_pBitmap->GetHeight();
+
+    // Extract pixel data from the bitmap
+    Gdiplus::BitmapData bitmapData;
+    Gdiplus::Rect rect(0, 0, m_width, m_height);
+    m_pBitmap->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bitmapData);
+
+    m_pixelData.resize(m_width * m_height * 4);
+    uint8_t* pPixels = static_cast<uint8_t*>(bitmapData.Scan0);
+    int stride = bitmapData.Stride;
+
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            int sourceIndex = y * stride + x * 4;
+            int destIndex = (y * m_width + x) * 4;
+
+            // Convert from ARGB to BGRA
+            m_pixelData[destIndex + 0] = pPixels[sourceIndex + 2]; // B
+            m_pixelData[destIndex + 1] = pPixels[sourceIndex + 1]; // G
+            m_pixelData[destIndex + 2] = pPixels[sourceIndex + 0]; // R
+            m_pixelData[destIndex + 3] = pPixels[sourceIndex + 3]; // A
+        }
+    }
+
+    m_pBitmap->UnlockBits(&bitmapData);
+
+    // Store the original pixel data
+    m_originalPixelData = m_pixelData;
 }
 
 void JpegImage::Render(HDC hdc, int x, int y, int desiredWidth, int desiredHeight) const {
@@ -48,4 +75,31 @@ void JpegImage::InitializeGdiPlus() {
 
 void JpegImage::ShutdownGdiPlus() {
     Gdiplus::GdiplusShutdown(m_gdiplusToken);
+}
+
+void JpegImage::UpdateBitmap() {
+    if (m_pBitmap && !m_pixelData.empty()) {
+        Gdiplus::BitmapData bitmapData;
+        Gdiplus::Rect rect(0, 0, m_width, m_height);
+
+        m_pBitmap->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bitmapData);
+
+        uint8_t* pPixels = static_cast<uint8_t*>(bitmapData.Scan0);
+        int stride = bitmapData.Stride;
+
+        for (int y = 0; y < m_height; ++y) {
+            for (int x = 0; x < m_width; ++x) {
+                int sourceIndex = (y * m_width + x) * 4;
+                int destIndex = y * stride + x * 4;
+
+                // Convert from BGRA to ARGB
+                pPixels[destIndex + 0] = m_pixelData[sourceIndex + 2]; // R
+                pPixels[destIndex + 1] = m_pixelData[sourceIndex + 1]; // G
+                pPixels[destIndex + 2] = m_pixelData[sourceIndex + 0]; // B
+                pPixels[destIndex + 3] = m_pixelData[sourceIndex + 3]; // A
+            }
+        }
+
+        m_pBitmap->UnlockBits(&bitmapData);
+    }
 }
