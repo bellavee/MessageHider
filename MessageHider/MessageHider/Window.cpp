@@ -30,6 +30,7 @@ bool Window::Display()
     manager.CreateElements(m_hWnd, m_hInstance);
     CreateButtons(); // TODO -> move to manager
 
+
     ShowWindow(m_hWnd, SW_SHOW);
     UpdateWindow(m_hWnd);
 
@@ -169,7 +170,7 @@ void Window::DrawImage(HDC hdc)
         // Calculate the position to center the image in the desired area
         int windowWidth = WINDOW_WIDTH;
         int imageAreaTop = 150;  // Approximate Y position below the "Load an image" button
-        int imageAreaBottom = 450;  // Approximate Y position above the input field
+        int imageAreaBottom = 440;  // Approximate Y position above the input field
         int imageAreaHeight = imageAreaBottom - imageAreaTop;
 
         const Image* image = manager.GetImage();
@@ -204,7 +205,7 @@ void Window::DrawImage(HDC hdc)
     }
 }
 
-void Window::DrawMessageCapacityText(HDC hdc)
+void Window::DrawCapacityInputFieldText(HDC hdc)
 {
     if (!m_hNormalFont)
     {
@@ -231,8 +232,18 @@ void Window::DrawMessageCapacityText(HDC hdc)
     SetTextColor(hdc, WHITE);
     SetBkMode(hdc, TRANSPARENT);
 
-    const WCHAR* messageCapacity = L"Maximum message capacity : ";
-    TextOut(hdc,(WINDOW_WIDTH /2), 455, messageCapacity, wcslen(messageCapacity));
+    const WCHAR* capacityInputFieldText = L"Maximum message capacity : ";
+    TextOut(hdc,(WINDOW_WIDTH /2), ((WINDOW_HEIGHT / 2) + 3), capacityInputFieldText, wcslen(capacityInputFieldText));
+}
+
+void Window::DrawCapacityInputField(HDC hdc) const
+{
+    SelectObject(hdc, m_hNormalFont);
+    SetTextColor(hdc, RED);
+    SetBkMode(hdc, TRANSPARENT);
+
+    const WCHAR* capacityInputField = L"capacityInputField";
+    TextOut(hdc, ((WINDOW_WIDTH / 2) + 165 ), ((WINDOW_HEIGHT / 2) + 3), capacityInputField, wcslen(capacityInputField));
 }
 
 void Window::DrawFilterIntensityText(HDC hdc) const
@@ -253,10 +264,10 @@ void Window::CreateSlider()
         TRACKBAR_CLASS,                                                 // Classe
         L"",                                                            // Texte de la fenêtre
         WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_ENABLESELRANGE,     // Style de la fenêtre
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                   // Position X
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),                  // Position X
         500,                                                            // Position Y 
         450,                                                            // Largeur
-        20,                                                             // Hauteur
+        30,                                                             // Hauteur
         m_hWnd,                                                         // Handle de la fenêtre parent
         nullptr,                                                        // Identifiant du slider 
         nullptr,                                                        // Instance de l'application
@@ -311,7 +322,8 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             FillRect(hdc, &clientRect, (HBRUSH)GetStockObject(manager.HasDarkTheme() ? BLACK_BRUSH : LTGRAY_BRUSH));
 
             pThis->DrawTitle(hdc);
-            pThis->DrawMessageCapacityText(hdc);
+            pThis->DrawCapacityInputFieldText(hdc);
+            pThis->DrawCapacityInputField(hdc);
             pThis->DrawFilterIntensityText(hdc);
 
             pThis->DrawImage(hdc);

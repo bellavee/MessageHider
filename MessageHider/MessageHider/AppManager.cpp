@@ -69,11 +69,11 @@ void AppManager::CreateDropdown()
         L"COMBOBOX",                                    // Classe de la fenêtre : une liste déroulante
         L"No filter",                                   // Texte affiché par défaut dans la combo box
         WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,       // Styles : enfant, visible et liste déroulante
-        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),   // Position X 
-        450,                                            // Position Y
+        (((WINDOW_WIDTH - 450) / 2) - ANCHOR_SPACING),  // Position X 
+        (WINDOW_HEIGHT / 2),                            // Position Y
         225,                                            // Largeur
         100,                                            // Hauteur
-        m_wHWND,                                         // Handle de la fenêtre parent
+        m_wHWND,                                        // Handle de la fenêtre parent
         NULL,                                           // Identifiant de la combo box (NULL pour que le système en attribue un)
         NULL,                                           // Instance de l'application (NULL pour utiliser l'instance par défaut)
         NULL                                            // Paramètre additionnel
