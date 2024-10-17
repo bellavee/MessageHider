@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AppManager.h" />
+    <ClInclude Include="BmpImage.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Image.h" />
@@ -147,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AppManager.cpp" />
+    <ClCompile Include="BmpImage.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageFilter.cpp" />

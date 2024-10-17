@@ -50,4 +50,6 @@ private:
     HWND m_parent; // parent
     ButtonType m_type;
     Page m_pageToDisplay;
+
+    std::unique_ptr<LSB> m_lsb;
 };
