@@ -251,6 +251,9 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             pThis->DrawImage(hdc);
 
             if (manager.GetCurrentPage() == Page::Encode) manager.DrawEncodeElements();
+
+            //else if (manager.GetCurrentPage() == Page::Decode) manager.DrawDecodeElements();
+
         }
         EndPaint(hWnd, &ps);
     }

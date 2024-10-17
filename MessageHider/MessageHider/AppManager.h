@@ -28,7 +28,8 @@ public:
 
     void CreateElements(HWND hwnd, HINSTANCE instance);
     void CreateEncodeElements();
-    void DrawEncodeElements();
+    void CreateDecodeElements();
+    void DrawEncodeElements() const;
     void HandleNewPage();
 
     // Getters
@@ -66,6 +67,7 @@ private:
     HWND m_inputField;
     HWND m_dropdown;
     HWND m_slider;
+    HWND m_readOnlyInputField;
 
     AppManager();
     AppManager(const AppManager&) = delete;

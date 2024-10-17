@@ -131,7 +131,27 @@ void AppManager::CreateEncodeElements()
     SendMessage(m_slider, TBM_SETPOS, TRUE, 50);
 }
 
-void AppManager::DrawEncodeElements()
+void AppManager::CreateDecodeElements()
+{
+    // Input field
+    m_readOnlyInputField = CreateWindowEx
+    (
+        WS_EX_CLIENTEDGE,
+        L"EDIT",
+        L"Secret Message extrait avec beaucoup de texte qui va dépasser la taille de la fenêtre pour forcer l apparition d une barre de défilement...",
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+        (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
+        540,
+        480,
+        150,
+        m_wHWND,
+        nullptr,
+        m_wInstance,
+        nullptr
+    );
+}
+
+void AppManager::DrawEncodeElements() const
 {
     SelectObject(m_wHDC, m_normalFont);
     SetBkMode(m_wHDC, TRANSPARENT);
@@ -170,8 +190,10 @@ void AppManager::HandleNewPage()
     {
     case Page::Encode:
         CreateEncodeElements();
+        InvalidateRect(m_wHWND, NULL, TRUE);
         break;
     case Page::Decode:
+        CreateDecodeElements();
         DestroyWindow(m_inputField);
         DestroyWindow(m_dropdown);
         DestroyWindow(m_slider);
