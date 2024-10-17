@@ -27,14 +27,14 @@ public:
 
     std::string GetUserInput();
 
-    void UpdateElement() const;
+    void UpdateElement();
 
     void CreateElements(HWND hwnd, HINSTANCE instance);
     void CreateEncodeElements();
     void CreateDecodeElements();
     void DrawEncodeElements() const;
     void HandleNewPage();
-    void ShowErrorPopup(const WCHAR* error);
+    void ShowErrorPopup(const WCHAR* error) const;
     void HelpPopup();
     void Load();
     void ChangeTheme();

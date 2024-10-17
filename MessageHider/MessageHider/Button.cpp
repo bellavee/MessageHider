@@ -159,9 +159,9 @@ void Button::OnClick()
     break;
     case ButtonType::DecodeAction:
     {
-
         if (!manager.HasImageLoaded()) break;
         manager.SetDecodedMessage(m_lsb->Decode());
+        InvalidateRect(m_parent, NULL, TRUE);
     }
     break;
     }
