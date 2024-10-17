@@ -66,13 +66,4 @@ bool Steganography::GetImageDatas()
 	}
 
 	m_imageBytes = manager.GetImage()->GetPixelData();
-
-	/*std::ifstream imageFile("./eevee.png", std::ios::binary);
-	if (!imageFile) {
-		std::cerr << "Impossible d'ouvrir l'image" << std::endl;
-		return;
-	}
-
-	m_imageBytes = std::vector<uint8_t>((std::istreambuf_iterator<char>(imageFile)), std::istreambuf_iterator<char>());
-	imageFile.close();*/
 }

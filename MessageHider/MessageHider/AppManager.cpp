@@ -142,7 +142,7 @@ void AppManager::CreateDecodeElements()
         WS_EX_CLIENTEDGE,
         L"EDIT",
         L" ",
-        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_DISABLED,
         (((WINDOW_WIDTH - 480) / 2) - ANCHOR_SPACING),
         540,
         480,

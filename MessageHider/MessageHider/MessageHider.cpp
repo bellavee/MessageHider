@@ -14,9 +14,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     Window window(hInstance, nCmdShow);
 
-    if (!window.Display())return 0;      // Erreur lors de la création de la fenêtre
+    if (!window.Display()) return 0;
 
-    window.ShowMessageLoop();           // Lance la boucle de messages
+    window.ShowMessageLoop();
 
     return 0;
 }
