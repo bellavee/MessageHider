@@ -59,6 +59,7 @@ bool Steganography::GetImageDatas()
 {
 	AppManager& manager = AppManager::GetInstance();
 	m_imageBytes = manager.GetImage()->GetPixelData();
+    return true;
 }
 
 void Steganography::SaveAsBmp(const std::string& filename) {
